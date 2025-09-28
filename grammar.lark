@@ -1,0 +1,33 @@
+start: meta_block? blocks*
+
+meta_block: "VLX:" META_LINE
+META_LINE: /.+/\n
+
+blocks: layer_def | function_def | task_window | process_block | mantra_block | /.+/\n
+
+layer_def: LAYER_NAME ":" LAYER_TITLE ARROW? LAYER_CONTENT?\n
+LAYER_NAME: /L\d+/ 
+LAYER_TITLE: /[^→\n]+/ 
+ARROW: /→|->|=>/ 
+LAYER_CONTENT: /\{[^}]*\}|[^\n]*/
+
+function_def: "function" NAME "(" [ARGS] "):" NEWLINE INDENT FUNC_BODY DEDENT
+NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
+ARGS: /[^)]*/
+FUNC_BODY: /(.|\n)+?/(?=\n\S|$)
+
+TASK_WINDOW: "TASK_WINDOW:" NEWLINE INDENT TASK_CONTENT DEDENT
+TASK_CONTENT: /(.|\n)+?/(?=\n\S|$)
+
+process_block: "VLX.PROCESS:" NEWLINE INDENT PROCESS_LINES DEDENT
+PROCESS_LINES: /(.|\n)+?/(?=\n\S|$)
+
+mantra_block: "VLX.MANTRA:" NEWLINE MANTRA_TEXT
+MANTRA_TEXT: /(.|\n)+/
+
+%import common.NEWLINE
+%import common.WS_INLINE
+%import common.WS
+%import common.INDENT
+%import common.DEDENT
+%ignore WS
