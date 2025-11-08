@@ -34,7 +34,7 @@ async def handle_static(request):
     path = request.match_info.get('path', 'index.html')
 
     # Список статических файлов
-    static_files = ['index.html', 'style.css', 'app.js', 'script.js', 'demo.html', 'Оракул.html']
+    static_files = ['index.html', 'style.css', 'app.js', 'script.js', 'demo.html', 'Оракул.html', 'Космическая Одиссея.mp4']
 
     if path in static_files and os.path.exists(path):
         return web.FileResponse(path)
