@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Демо - Оракул Снов</title>
+    <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .demo-container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .demo-header {
+            margin-bottom: 20px;
+        }
+
+        .demo-header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .demo-header p {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 */
+            margin: 20px 0;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-wrapper iframe,
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .demo-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .demo-placeholder .icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .demo-placeholder p {
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .features {
+            text-align: left;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .features h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .features ul {
+            list-style: none;
+        }
+
+        .features li {
+            padding: 10px 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+        .features li::before {
+            content: "✨";
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .cta-section {
+            margin-top: 25px;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px;
+            min-width: 200px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .cta-button.secondary {
+            background: #6c757d;
+        }
+
+        .price-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+
+        .demo-note {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 5px;
+            color: #856404;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🌙 Демо-версия Оракула Снов</h1>
+            <p>Посмотрите, как работает полная версия бота с визуализацией снов!</p>
+        </div>
+
+        <!-- Видео-превью -->
+        <div class="video-wrapper">
+            <!-- Замените на реальное видео YouTube или загруженный файл -->
+            <!-- Пример YouTube: <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" frameborder="0" allowfullscreen></iframe> -->
+
+            <!-- Временный placeholder -->
+            <div class="demo-placeholder">
+                <div class="icon">🎬</div>
+                <p>Демо-видео будет здесь</p>
+                <p style="font-size: 14px; margin-top: 10px; color: #666;">
+                    Добавьте ссылку на YouTube или загрузите видео
+                </p>
+            </div>
+        </div>
+
+        <!-- Возможности полной версии -->
+        <div class="features">
+            <h3>В полной версии вы получите:</h3>
+            <ul>
+                <li>Глубокий AI-анализ снов с использованием Groq API</li>
+                <li>Интерактивная визуализация символов и связей</li>
+                <li>Анализ по архетипам Юнга</li>
+                <li>График эмоциональной динамики сна</li>
+                <li>Персональные инсайты и рекомендации</li>
+                <li>Сохранение истории снов</li>
+                <li>Безлимитное количество анализов</li>
+            </ul>
+        </div>
+
+        <!-- Цена и кнопки -->
+        <div class="cta-section">
+            <div class="price-badge">
+                💎 Полная версия: 299₽/месяц
+            </div>
+            <br>
+            <button class="cta-button" onclick="handleSubscribe()">
+                🚀 Оформить подписку
+            </button>
+            <button class="cta-button secondary" onclick="handleBack()">
+                ⬅️ Назад в бот
+            </button>
+        </div>
+
+        <!-- Примечание -->
+        <div class="demo-note">
+            <strong>💡 Примечание:</strong> Это демо-версия. Для получения полного функционала оформите подписку. Первые 3 дня — бесплатно!
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        if (window.Telegram && window.Telegram.WebApp) {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+        }
+
+        function handleSubscribe() {
+            // Отправить данные боту о желании подписаться
+            if (window.Telegram && window.Telegram.WebApp) {
+                Telegram.WebApp.sendData('subscribe');
+                Telegram.WebApp.close();
+            } else {
+                alert('Эта функция доступна только в Telegram Mini App');
+            }
+        }
+
+        function handleBack() {
+            // Закрыть Mini App и вернуться в бот
+            if (window.Telegram && window.Telegram.WebApp) {
+                Telegram.WebApp.close();
+            }
+        }
+    </script>
+</body>
+</html>

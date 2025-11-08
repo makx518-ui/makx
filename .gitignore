@@ -1,0 +1,35 @@
+# Данные пользователей
+data/dreams/
+data/subscriptions.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Переменные окружения
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Логи
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
