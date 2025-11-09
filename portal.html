@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Open Graph метатеги для соцсетей -->
+    <meta property="og:title" content="🌙 Оракул Снов - Портал">
+    <meta property="og:description" content="Узнайте глубинный смысл ваших снов. Психологический и эзотерический анализ.">
+    <meta property="og:image" content="https://raw.githack.com/makx518-ui/makx/claude/debug-freeze-issue-011CUwnf57FkqCCV3mAaJDox/logo.png">
+    <meta property="og:url" content="https://raw.githack.com/makx518-ui/makx/claude/debug-freeze-issue-011CUwnf57FkqCCV3mAaJDox/portal.html">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card метатеги -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="🌙 Оракул Снов - Портал">
+    <meta name="twitter:description" content="Узнайте глубинный смысл ваших снов">
+    <meta name="twitter:image" content="https://raw.githack.com/makx518-ui/makx/claude/debug-freeze-issue-011CUwnf57FkqCCV3mAaJDox/logo.png">
+
+    <title>🌙 Оракул Снов - Портал</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .banner {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .banner:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(108, 92, 231, 0.5);
+        }
+
+        h1 {
+            color: #6c5ce7;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+
+        p {
+            color: #2d3436;
+            margin: 10px 0;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #6c5ce7 0%, #a8edea 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 35px;
+            margin-top: 25px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(108, 92, 231, 0.5);
+        }
+
+        .emoji-link {
+            font-size: 64px;
+            display: inline-block;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-decoration: none;
+        }
+
+        .emoji-link:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .countdown {
+            color: #6c5ce7;
+            font-size: 14px;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Кликабельный баннер/изображение -->
+        <a href="https://raw.githack.com/makx518-ui/makx/claude/hello-world-011CUwi7MYN96mhT5Nz7y3KQ/PORTAL_MANUAL.html" id="mainLink">
+            <img src="logo.png" alt="Оракул Снов" class="banner" onerror="this.style.display='none'">
+        </a>
+
+        <h1>🌙 Добро пожаловать в Оракул Снов</h1>
+
+        <p>✨ Глубокий психологический анализ<br>
+        📊 Архетипический анализ по Юнгу<br>
+        🔮 Эзотерическая трактовка</p>
+
+        <!-- Эмодзи-ссылка -->
+        <a href="https://raw.githack.com/makx518-ui/makx/claude/hello-world-011CUwi7MYN96mhT5Nz7y3KQ/PORTAL_MANUAL.html" class="emoji-link" title="Открыть портал">
+            🔮
+        </a>
+
+        <!-- Кнопка -->
+        <br>
+        <a href="https://raw.githack.com/makx518-ui/makx/claude/hello-world-011CUwi7MYN96mhT5Nz7y3KQ/PORTAL_MANUAL.html" class="button">
+            Войти в портал →
+        </a>
+
+        <p class="countdown" id="countdown">Автоматический переход через <span id="timer">5</span> секунд...</p>
+    </div>
+
+    <script>
+        // Автоматический редирект через 5 секунд
+        let seconds = 5;
+        const timerElement = document.getElementById('timer');
+        const targetUrl = 'https://raw.githack.com/makx518-ui/makx/claude/hello-world-011CUwi7MYN96mhT5Nz7y3KQ/PORTAL_MANUAL.html';
+
+        const countdown = setInterval(() => {
+            seconds--;
+            timerElement.textContent = seconds;
+
+            if (seconds <= 0) {
+                clearInterval(countdown);
+                window.location.href = targetUrl;
+            }
+        }, 1000);
+
+        // Отключить автоматический переход при клике на любую ссылку
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                clearInterval(countdown);
+            });
+        });
+    </script>
+</body>
+</html>
