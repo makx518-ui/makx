@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портал в Оракул Снов</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #7e22ce 50%, #db2777 75%, #f97316 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .portal-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 50px 40px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            transform: translateY(0);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .portal-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 50px 0 rgba(31, 38, 135, 0.5);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .moon-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .features {
+            margin: 25px 0;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 2;
+        }
+
+        .portal-link {
+            display: inline-block;
+            text-decoration: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portal-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .portal-link:hover::before {
+            left: 100%;
+        }
+
+        .portal-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px 0 rgba(102, 126, 234, 0.6);
+        }
+
+        .portal-link:active {
+            transform: scale(0.98);
+        }
+
+        .mystic-text {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <div class="portal-card">
+        <div class="moon-icon">🌙✨</div>
+        <div class="title">Оракул Снов</div>
+        <div class="subtitle">Откройте дверь в мир тайн ваших сновидений</div>
+
+        <div class="features">
+            ✨ Глубокий психологический анализ<br>
+            📊 Архетипический анализ по Юнгу<br>
+            🔮 Эзотерическая трактовка
+        </div>
+
+        <!-- ВАЖНО: Замените YOUR_BOT_USERNAME на имя вашего бота -->
+        <a href="https://t.me/YOUR_BOT_USERNAME" class="portal-link" target="_blank">
+            Войти в портал
+        </a>
+
+        <div class="mystic-text">
+            "Сны — это королевская дорога к бессознательному" — З. Фрейд
+        </div>
+    </div>
+
+    <script>
+        // Создание звезд
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 50; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+    </script>
+</body>
+</html>
