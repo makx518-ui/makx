@@ -1,0 +1,87 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Градиентные определения -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8edea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fed6e3;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="moonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd89b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#19547b;stop-opacity:1" />
+    </linearGradient>
+
+    <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#6c5ce7;stop-opacity:0" />
+    </radialGradient>
+
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Фон -->
+  <circle cx="256" cy="256" r="256" fill="url(#bgGradient)"/>
+
+  <!-- Внешнее свечение -->
+  <circle cx="256" cy="256" r="180" fill="url(#glowGradient)" opacity="0.6"/>
+
+  <!-- Основная луна -->
+  <circle cx="256" cy="256" r="140" fill="url(#moonGradient)" filter="url(#glow)"/>
+
+  <!-- Кратеры на луне -->
+  <circle cx="220" cy="220" r="20" fill="#5a4a7a" opacity="0.3"/>
+  <circle cx="280" cy="240" r="15" fill="#5a4a7a" opacity="0.25"/>
+  <circle cx="240" cy="280" r="25" fill="#5a4a7a" opacity="0.2"/>
+  <circle cx="290" cy="290" r="12" fill="#5a4a7a" opacity="0.3"/>
+
+  <!-- Звезды вокруг -->
+  <g fill="#ffffff" opacity="0.9">
+    <!-- Большие звезды -->
+    <circle cx="120" cy="120" r="4"/>
+    <circle cx="390" cy="130" r="4"/>
+    <circle cx="100" cy="380" r="4"/>
+    <circle cx="400" cy="370" r="4"/>
+
+    <!-- Средние звезды -->
+    <circle cx="150" cy="200" r="3"/>
+    <circle cx="360" cy="220" r="3"/>
+    <circle cx="140" cy="330" r="3"/>
+    <circle cx="380" cy="310" r="3"/>
+    <circle cx="180" cy="100" r="3"/>
+    <circle cx="340" cy="400" r="3"/>
+
+    <!-- Маленькие звезды -->
+    <circle cx="110" cy="250" r="2"/>
+    <circle cx="400" cy="240" r="2"/>
+    <circle cx="90" cy="300" r="2"/>
+    <circle cx="420" cy="290" r="2"/>
+    <circle cx="130" cy="150" r="2"/>
+    <circle cx="380" cy="160" r="2"/>
+    <circle cx="100" cy="420" r="2"/>
+    <circle cx="410" cy="100" r="2"/>
+  </g>
+
+  <!-- Мистический символ в центре луны -->
+  <g transform="translate(256, 256)" fill="#ffffff" opacity="0.7">
+    <!-- Третий глаз / всевидящее око -->
+    <ellipse cx="0" cy="0" rx="40" ry="60" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <circle cx="0" cy="0" r="20" fill="#6c5ce7"/>
+    <circle cx="0" cy="0" r="10" fill="#ffffff"/>
+
+    <!-- Звезда вокруг глаза -->
+    <path d="M 0,-45 L 5,-60 L 10,-45 L 25,-50 L 15,-35 L 30,-30 L 15,-25 L 25,-10 L 10,-15 L 5,0 L 0,-15 L -5,0 L -10,-15 L -25,-10 L -15,-25 L -30,-30 L -15,-35 L -25,-50 L -10,-45 L -5,-60 Z"
+          fill="none" stroke="#ffd89b" stroke-width="2" opacity="0.6"/>
+  </g>
+
+  <!-- Текст "Оракул Снов" -->
+  <text x="256" y="460" font-family="Arial, sans-serif" font-size="36" font-weight="bold"
+        text-anchor="middle" fill="#6c5ce7" opacity="0.9">
+    🌙 Оракул Снов
+  </text>
+</svg>
