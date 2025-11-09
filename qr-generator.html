@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR-код Оракула Снов</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -159,64 +160,42 @@
         function downloadQR() {
             const wrapper = document.getElementById('qr-wrapper');
 
-            // Используем html2canvas для создания изображения
-            // Альтернатива: просто скачать canvas из QRCode
-            const canvas = document.querySelector('#qrcode canvas');
+            // Показываем индикатор загрузки
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Генерация...';
+            btn.disabled = true;
 
-            if (canvas) {
-                // Создаём новый canvas с логотипом
-                const finalCanvas = document.createElement('canvas');
-                const ctx = finalCanvas.getContext('2d');
-                const size = 340; // 300 + padding
+            // Используем html2canvas для захвата всего контейнера
+            html2canvas(wrapper, {
+                backgroundColor: '#ffffff',
+                scale: 2, // Высокое качество
+                logging: false
+            }).then(function(canvas) {
+                // Конвертируем в blob и скачиваем
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'orakul-snov-qr.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
 
-                finalCanvas.width = size;
-                finalCanvas.height = size;
-
-                // Белый фон
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, size, size);
-
-                // Рисуем QR-код
-                ctx.drawImage(canvas, 20, 20);
-
-                // Добавляем логотип в центр
-                const logo = new Image();
-                logo.onload = function() {
-                    const logoSize = 80;
-                    const logoX = (size - logoSize) / 2;
-                    const logoY = (size - logoSize) / 2;
-
-                    // Белый круг под логотипом
-                    ctx.fillStyle = 'white';
-                    ctx.beginPath();
-                    ctx.arc(size/2, size/2, logoSize/2 + 4, 0, 2 * Math.PI);
-                    ctx.fill();
-
-                    // Фиолетовая рамка
-                    ctx.strokeStyle = '#6c5ce7';
-                    ctx.lineWidth = 3;
-                    ctx.stroke();
-
-                    // Рисуем логотип
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(size/2, size/2, logoSize/2, 0, 2 * Math.PI);
-                    ctx.clip();
-                    ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
-                    ctx.restore();
-
-                    // Скачивание
-                    finalCanvas.toBlob(function(blob) {
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'orakul-snov-qr.png';
-                        a.click();
-                        URL.revokeObjectURL(url);
-                    });
-                };
-                logo.src = 'logo.svg';
-            }
+                    // Восстанавливаем кнопку
+                    btn.textContent = '✅ Скачано!';
+                    setTimeout(function() {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }, 2000);
+                }, 'image/png');
+            }).catch(function(error) {
+                console.error('Ошибка при создании QR-кода:', error);
+                alert('❌ Ошибка при скачивании. Попробуйте сделать скриншот QR-кода.');
+                btn.textContent = originalText;
+                btn.disabled = false;
+            });
         }
 
         // Функция копирования ссылки
