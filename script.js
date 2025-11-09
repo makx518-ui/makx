@@ -3,12 +3,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Проверяем, что Telegram WebApp доступен
     if (window.Telegram && window.Telegram.WebApp) {
-        // Устанавливаем цвет фона и заголовка
-        Telegram.WebApp.setHeaderColor('#6c5ce7');
-        Telegram.WebApp.setBackgroundColor('#a8edea');
+        const tg = Telegram.WebApp;
+
+        // Устанавливаем цвет фона и заголовка с проверкой доступности
+        if (tg.setHeaderColor) {
+            try {
+                tg.setHeaderColor('#6c5ce7');
+            } catch (e) {
+                console.log('setHeaderColor не поддерживается:', e);
+            }
+        }
+
+        if (tg.setBackgroundColor) {
+            try {
+                tg.setBackgroundColor('#a8edea');
+            } catch (e) {
+                console.log('setBackgroundColor не поддерживается:', e);
+            }
+        }
 
         // Готовим Mini App к показу
-        Telegram.WebApp.ready();
+        tg.ready();
 
         // Обработчик кнопки "Начать"
         startButton.addEventListener('click', () => {
