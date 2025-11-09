@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR-код Оракула Снов</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #6c5ce7;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        #qr-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.2);
+        }
+
+        #qrcode {
+            display: inline-block;
+        }
+
+        .logo-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            padding: 8px;
+            box-shadow: 0 0 0 3px #6c5ce7;
+        }
+
+        .logo-overlay img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a8edea 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(108, 92, 231, 0.5);
+        }
+
+        .info {
+            margin-top: 20px;
+            color: #2d3436;
+            line-height: 1.6;
+        }
+
+        .url-display {
+            background: rgba(108, 92, 231, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-size: 12px;
+            color: #6c5ce7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌙 QR-код Оракула Снов</h1>
+
+        <p class="info">Отсканируйте этот QR-код, чтобы перейти на портал</p>
+
+        <div class="url-display" id="url-display"></div>
+
+        <div id="qr-wrapper">
+            <div id="qrcode"></div>
+            <div class="logo-overlay">
+                <img src="logo.svg" alt="Logo">
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button onclick="downloadQR()">💾 Скачать QR-код</button>
+            <button onclick="copyLink()">📋 Копировать ссылку</button>
+        </div>
+
+        <p class="info" style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
+            Отправьте этот QR-код в соцсетях вместо текстовой ссылки!
+        </p>
+    </div>
+
+    <script>
+        // URL на который ведёт QR-код
+        const targetURL = 'https://raw.githack.com/makx518-ui/makx/claude/debug-freeze-issue-011CUwnf57FkqCCV3mAaJDox/portal.html';
+
+        // Показать URL
+        document.getElementById('url-display').textContent = targetURL;
+
+        // Генерация QR-кода
+        const qrcode = new QRCode(document.getElementById("qrcode"), {
+            text: targetURL,
+            width: 300,
+            height: 300,
+            colorDark: "#6c5ce7",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H // Высокий уровень коррекции ошибок (важно, т.к. логотип в центре)
+        });
+
+        // Функция скачивания QR-кода
+        function downloadQR() {
+            const wrapper = document.getElementById('qr-wrapper');
+
+            // Используем html2canvas для создания изображения
+            // Альтернатива: просто скачать canvas из QRCode
+            const canvas = document.querySelector('#qrcode canvas');
+
+            if (canvas) {
+                // Создаём новый canvas с логотипом
+                const finalCanvas = document.createElement('canvas');
+                const ctx = finalCanvas.getContext('2d');
+                const size = 340; // 300 + padding
+
+                finalCanvas.width = size;
+                finalCanvas.height = size;
+
+                // Белый фон
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, size, size);
+
+                // Рисуем QR-код
+                ctx.drawImage(canvas, 20, 20);
+
+                // Добавляем логотип в центр
+                const logo = new Image();
+                logo.onload = function() {
+                    const logoSize = 80;
+                    const logoX = (size - logoSize) / 2;
+                    const logoY = (size - logoSize) / 2;
+
+                    // Белый круг под логотипом
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath();
+                    ctx.arc(size/2, size/2, logoSize/2 + 4, 0, 2 * Math.PI);
+                    ctx.fill();
+
+                    // Фиолетовая рамка
+                    ctx.strokeStyle = '#6c5ce7';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    // Рисуем логотип
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(size/2, size/2, logoSize/2, 0, 2 * Math.PI);
+                    ctx.clip();
+                    ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
+                    ctx.restore();
+
+                    // Скачивание
+                    finalCanvas.toBlob(function(blob) {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'orakul-snov-qr.png';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    });
+                };
+                logo.src = 'logo.svg';
+            }
+        }
+
+        // Функция копирования ссылки
+        function copyLink() {
+            navigator.clipboard.writeText(targetURL).then(function() {
+                alert('✅ Ссылка скопирована в буфер обмена!');
+            }, function(err) {
+                alert('❌ Ошибка копирования: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
