@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR-код Оракула Снов</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -30,6 +29,7 @@
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
         }
 
         h1 {
@@ -38,52 +38,64 @@
             font-size: 28px;
         }
 
-        #qr-wrapper {
-            position: relative;
-            display: inline-block;
-            margin: 20px 0;
+        #qr-canvas {
+            margin: 20px auto;
+            display: block;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.3);
+            cursor: pointer;
             background: white;
             padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.2);
         }
 
-        #qrcode {
-            display: inline-block;
+        .info {
+            margin: 15px 0;
+            color: #2d3436;
+            line-height: 1.6;
+            font-size: 16px;
         }
 
-        .logo-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
-            padding: 8px;
-            box-shadow: 0 0 0 3px #6c5ce7;
+        .url-display {
+            background: rgba(108, 92, 231, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-size: 13px;
+            color: #6c5ce7;
+            font-family: monospace;
         }
 
-        .logo-overlay img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
+        .instruction {
+            background: rgba(108, 92, 231, 0.05);
+            border-left: 4px solid #6c5ce7;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 5px;
         }
 
-        .buttons {
-            margin-top: 20px;
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
+        .instruction strong {
+            color: #6c5ce7;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .instruction ol {
+            margin-left: 20px;
+        }
+
+        .instruction li {
+            margin: 5px 0;
+            color: #2d3436;
         }
 
         button {
             background: linear-gradient(135deg, #6c5ce7 0%, #a8edea 100%);
             color: white;
             border: none;
-            padding: 12px 30px;
+            padding: 15px 35px;
+            margin: 10px;
             border-radius: 25px;
             font-size: 16px;
             font-weight: 600;
@@ -97,20 +109,15 @@
             box-shadow: 0 6px 25px rgba(108, 92, 231, 0.5);
         }
 
-        .info {
-            margin-top: 20px;
-            color: #2d3436;
-            line-height: 1.6;
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
-        .url-display {
-            background: rgba(108, 92, 231, 0.1);
-            padding: 10px;
-            border-radius: 10px;
-            margin: 15px 0;
-            word-break: break-all;
-            font-size: 12px;
-            color: #6c5ce7;
+        .highlight {
+            background: yellow;
+            padding: 2px 5px;
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -118,21 +125,28 @@
     <div class="container">
         <h1>🌙 QR-код Оракула Снов</h1>
 
-        <p class="info">Отсканируйте этот QR-код, чтобы перейти на портал</p>
+        <p class="info">Отсканируйте QR-код, чтобы перейти на портал</p>
 
         <div class="url-display" id="url-display"></div>
 
-        <div id="qr-wrapper">
-            <div id="qrcode"></div>
-            <div class="logo-overlay">
-                <img src="logo.svg" alt="Logo">
-            </div>
+        <!-- QR-код будет здесь -->
+        <canvas id="qr-canvas"></canvas>
+
+        <div class="instruction">
+            <strong>📥 Как скачать QR-код:</strong>
+            <ol>
+                <li><span class="highlight">Кликните ПРАВОЙ кнопкой мыши</span> на QR-код выше</li>
+                <li>Выберите "Сохранить изображение как..."</li>
+                <li>Сохраните файл</li>
+                <li>Готово! Теперь можете отправлять в соцсети</li>
+            </ol>
+            <p style="margin-top: 10px; font-size: 14px;">
+                📱 На телефоне: <strong>нажмите и УДЕРЖИВАЙТЕ</strong> палец на QR-коде, затем выберите "Сохранить изображение"
+            </p>
         </div>
 
-        <div class="buttons">
-            <button onclick="downloadQR()">💾 Скачать QR-код</button>
-            <button onclick="copyLink()">📋 Копировать ссылку</button>
-        </div>
+        <button onclick="downloadQR()">💾 Скачать QR-код (альтернатива)</button>
+        <button onclick="copyLink()">📋 Копировать ссылку</button>
 
         <p class="info" style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
             Отправьте этот QR-код в соцсетях вместо текстовой ссылки!
@@ -146,33 +160,59 @@
         // Показать URL
         document.getElementById('url-display').textContent = targetURL;
 
-        // Генерация QR-кода
-        const qrcode = new QRCode(document.getElementById("qrcode"), {
-            text: targetURL,
-            width: 300,
-            height: 300,
-            colorDark: "#6c5ce7",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H // Высокий уровень коррекции ошибок (важно, т.к. логотип в центре)
+        // Генерация QR-кода напрямую на canvas
+        const canvas = document.getElementById('qr-canvas');
+
+        QRCode.toCanvas(canvas, targetURL, {
+            width: 400,
+            margin: 2,
+            color: {
+                dark: '#6c5ce7',
+                light: '#ffffff'
+            },
+            errorCorrectionLevel: 'H'
+        }, function (error) {
+            if (error) {
+                console.error('Ошибка генерации QR-кода:', error);
+                alert('❌ Ошибка при создании QR-кода');
+            } else {
+                console.log('✅ QR-код успешно создан!');
+
+                // Добавляем логотип в центр
+                addLogoToQR();
+            }
         });
 
-        // Функция скачивания QR-кода
+        // Добавление логотипа в центр QR-кода
+        function addLogoToQR() {
+            const ctx = canvas.getContext('2d');
+            const logoSize = 80;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // Белый круг под логотипом
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, logoSize / 2 + 5, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Фиолетовая рамка
+            ctx.strokeStyle = '#6c5ce7';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, logoSize / 2 + 5, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            // Рисуем эмодзи луны в центре
+            ctx.font = '60px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🌙', centerX, centerY);
+        }
+
+        // Функция скачивания QR-кода (альтернативный метод)
         function downloadQR() {
-            const wrapper = document.getElementById('qr-wrapper');
-
-            // Показываем индикатор загрузки
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '⏳ Генерация...';
-            btn.disabled = true;
-
-            // Используем html2canvas для захвата всего контейнера
-            html2canvas(wrapper, {
-                backgroundColor: '#ffffff',
-                scale: 2, // Высокое качество
-                logging: false
-            }).then(function(canvas) {
-                // Конвертируем в blob и скачиваем
+            try {
                 canvas.toBlob(function(blob) {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -182,29 +222,41 @@
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-
-                    // Восстанавливаем кнопку
-                    btn.textContent = '✅ Скачано!';
-                    setTimeout(function() {
-                        btn.textContent = originalText;
-                        btn.disabled = false;
-                    }, 2000);
+                    alert('✅ QR-код скачан!');
                 }, 'image/png');
-            }).catch(function(error) {
-                console.error('Ошибка при создании QR-кода:', error);
-                alert('❌ Ошибка при скачивании. Попробуйте сделать скриншот QR-кода.');
-                btn.textContent = originalText;
-                btn.disabled = false;
-            });
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('❌ Ошибка. Используйте метод "Правая кнопка мыши → Сохранить изображение"');
+            }
         }
 
         // Функция копирования ссылки
         function copyLink() {
-            navigator.clipboard.writeText(targetURL).then(function() {
-                alert('✅ Ссылка скопирована в буфер обмена!');
-            }, function(err) {
-                alert('❌ Ошибка копирования: ' + err);
-            });
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(targetURL).then(function() {
+                    alert('✅ Ссылка скопирована в буфер обмена!');
+                }, function(err) {
+                    fallbackCopy();
+                });
+            } else {
+                fallbackCopy();
+            }
+        }
+
+        function fallbackCopy() {
+            const textArea = document.createElement('textarea');
+            textArea.value = targetURL;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('✅ Ссылка скопирована!');
+            } catch (err) {
+                alert('❌ Не удалось скопировать. Ссылка: ' + targetURL);
+            }
+            document.body.removeChild(textArea);
         }
     </script>
 </body>
