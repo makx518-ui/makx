@@ -11,20 +11,21 @@
       box-sizing: border-box;
     }
 
-    /* === ВИДЕО ЭКРАН === */
+    /* === ВИДЕО ЭКРАН С ЗВЕЗДАМИ === */
     #video-stage {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: black;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1b3f 50%, #0f1729 100%);
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 9999;
       opacity: 1;
       transition: opacity 1s ease;
+      cursor: pointer;
     }
 
     #video-stage.hidden {
@@ -32,10 +33,79 @@
       pointer-events: none;
     }
 
-    #intro-video {
+    /* Звезды на фоне видео */
+    .video-stars {
+      position: absolute;
       width: 100%;
       height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .video-star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 4s infinite ease-in-out;
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    }
+
+    /* Луна на фоне видео */
+    .video-moon {
+      position: absolute;
+      top: 5%;
+      right: 10%;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle at 30% 30%, #fff8e7, #f5e6c8);
+      border-radius: 50%;
+      box-shadow: 0 0 40px 10px rgba(255, 248, 231, 0.4);
+      z-index: 2;
+      animation: moonGlow 4s ease-in-out infinite;
+    }
+
+    @keyframes moonGlow {
+      0%, 100% { box-shadow: 0 0 40px 10px rgba(255, 248, 231, 0.4); }
+      50% { box-shadow: 0 0 60px 15px rgba(255, 248, 231, 0.6); }
+    }
+
+    #intro-video {
+      max-width: 70%;
+      max-height: 70vh;
       object-fit: contain;
+      z-index: 10;
+      border-radius: 15px;
+      box-shadow: 0 0 50px rgba(168, 85, 247, 0.5);
+    }
+
+    .sound-hint {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 18px;
+      background: rgba(124, 58, 237, 0.8);
+      padding: 10px 30px;
+      border-radius: 30px;
+      z-index: 100;
+      animation: pulse 2s infinite;
+    }
+
+    .sound-hint.hidden {
+      display: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
     }
 
     /* === МАГИЧЕСКАЯ СТРАНИЦА === */
@@ -71,11 +141,6 @@
       box-shadow: 0 0 60px 15px rgba(255, 248, 231, 0.4);
       z-index: 2;
       animation: moonGlow 4s ease-in-out infinite;
-    }
-
-    @keyframes moonGlow {
-      0%, 100% { box-shadow: 0 0 60px 15px rgba(255, 248, 231, 0.4); }
-      50% { box-shadow: 0 0 100px 25px rgba(255, 248, 231, 0.6); }
     }
 
     .mystic-symbols {
@@ -116,11 +181,6 @@
       border-radius: 50%;
       animation: twinkle 4s infinite ease-in-out;
       box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
-    }
-
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 1; }
     }
 
     .magic-circle {
@@ -243,6 +303,7 @@
     }
 
     @media (max-width: 768px) {
+      #intro-video { max-width: 90%; }
       .magic-circle { width: 400px; height: 400px; }
       .magic-circle-inner { width: 320px; height: 320px; top: 40px; left: 40px; }
       .magic-circle-outer { width: 480px; height: 480px; top: -40px; left: -40px; }
@@ -263,8 +324,11 @@
   </style>
 </head>
 <body>
-  <div id="video-stage">
-    <video id="intro-video" autoplay muted playsinline>
+  <div id="video-stage" onclick="enableSound()">
+    <div class="video-stars" id="videoStars"></div>
+    <div class="video-moon"></div>
+    <div class="sound-hint" id="soundHint">🔊 Нажмите для включения звука</div>
+    <video id="intro-video" muted playsinline>
       <source src="oracle_clean.mp4" type="video/mp4">
     </video>
   </div>
@@ -291,9 +355,39 @@
     const videoStage = document.getElementById('video-stage');
     const magicStage = document.getElementById('magic-stage');
     const introVideo = document.getElementById('intro-video');
+    const soundHint = document.getElementById('soundHint');
+    let soundEnabled = false;
+
+    // Создаём звезды на фоне видео
+    const videoStarsContainer = document.getElementById('videoStars');
+    for (let i = 0; i < 100; i++) {
+      const star = document.createElement('div');
+      star.classList.add('video-star');
+      const size = Math.random() * 3 + 1;
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDelay = Math.random() * 4 + 's';
+      star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      videoStarsContainer.appendChild(star);
+    }
+
+    // Включение звука по клику
+    function enableSound() {
+      if (!soundEnabled) {
+        introVideo.muted = false;
+        introVideo.play();
+        soundHint.classList.add('hidden');
+        soundEnabled = true;
+      }
+    }
+
+    // Автостарт видео без звука
+    introVideo.play().catch(() => {});
 
     introVideo.addEventListener('ended', showMagicStage);
-    setTimeout(() => { if (!magicStage.classList.contains('visible')) showMagicStage(); }, 10000);
+    setTimeout(() => { if (!magicStage.classList.contains('visible')) showMagicStage(); }, 20000);
 
     function showMagicStage() {
       videoStage.classList.add('hidden');
@@ -350,9 +444,6 @@
       magicStage.style.opacity = '0';
       setTimeout(() => { window.location.href = 'https://t.me/Groq_official_bot?start'; }, 500);
     }
-
-    introVideo.muted = false;
-    introVideo.play().catch(() => { introVideo.muted = true; introVideo.play(); });
   </script>
 </body>
 </html>
