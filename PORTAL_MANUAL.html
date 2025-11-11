@@ -11,7 +11,7 @@
       box-sizing: border-box;
     }
 
-    /* === ВИДЕО КОНТЕЙНЕР === */
+    /* === ВИДЕО ЭКРАН === */
     #video-stage {
       position: fixed;
       top: 0;
@@ -60,7 +60,6 @@
       height: 100vh;
     }
 
-    /* 🌙 ЛУНА */
     .moon {
       position: absolute;
       top: 10%;
@@ -79,7 +78,6 @@
       50% { box-shadow: 0 0 100px 25px rgba(255, 248, 231, 0.6); }
     }
 
-    /* ✨ МИСТИЧЕСКИЕ СИМВОЛЫ */
     .mystic-symbols {
       position: absolute;
       top: 10%;
@@ -102,7 +100,6 @@
       to { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
     }
 
-    /* 🌟 ЗВЕЗДЫ */
     .stars {
       position: absolute;
       width: 100%;
@@ -126,7 +123,6 @@
       50% { opacity: 1; }
     }
 
-    /* 🔮 МАГИЧЕСКИЙ КРУГ */
     .magic-circle {
       position: absolute;
       width: 500px;
@@ -167,7 +163,6 @@
       to { transform: rotate(360deg); }
     }
 
-    /* 🔮 РУНЫ */
     .rune {
       position: absolute;
       font-size: 24px;
@@ -181,7 +176,6 @@
       50% { opacity: 1; transform: scale(1.2); }
     }
 
-    /* 🎨 ЦЕНТРАЛЬНЫЙ КОНТЕНТ */
     .center-content {
       position: absolute;
       left: 50%;
@@ -201,8 +195,7 @@
       font-size: 60px;
       font-weight: bold;
       color: #e6d7ff;
-      text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5),
-                   0 0 20px rgba(168, 85, 247, 0.6);
+      text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 85, 247, 0.6);
       margin-bottom: 20px;
       letter-spacing: 4px;
       animation: titleGlow 3s ease-in-out infinite;
@@ -234,8 +227,7 @@
       border-radius: 50px;
       cursor: pointer;
       text-decoration: none;
-      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5),
-                  0 0 40px rgba(168, 85, 247, 0.3);
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
       transition: all 0.3s ease;
       animation: buttonFloat 3s ease-in-out infinite;
     }
@@ -247,11 +239,9 @@
 
     .portal-button:hover {
       transform: scale(1.1);
-      box-shadow: 0 15px 40px rgba(124, 58, 237, 0.7),
-                  0 0 60px rgba(168, 85, 247, 0.5);
+      box-shadow: 0 15px 40px rgba(124, 58, 237, 0.7), 0 0 60px rgba(168, 85, 247, 0.5);
     }
 
-    /* АДАПТАЦИЯ */
     @media (max-width: 768px) {
       .magic-circle { width: 400px; height: 400px; }
       .magic-circle-inner { width: 320px; height: 320px; top: 40px; left: 40px; }
@@ -273,39 +263,24 @@
   </style>
 </head>
 <body>
-  <!-- 🎬 ЭТАП 1: ВИДЕО -->
   <div id="video-stage">
     <video id="intro-video" autoplay muted playsinline>
-      <source src="5197261481606939449.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      <source src="oracle_clean.mp4" type="video/mp4">
     </video>
   </div>
 
-  <!-- 🔮 ЭТАП 2: МАГИЧЕСКАЯ СТРАНИЦА -->
   <div id="magic-stage">
-    <!-- 🌙 ЛУНА -->
     <div class="moon"></div>
-
-    <!-- ✨ МИСТИЧЕСКИЕ СИМВОЛЫ -->
     <div class="mystic-symbols" id="mysticSymbols"></div>
-
-    <!-- 🌟 ЗВЕЗДЫ -->
     <div class="stars" id="stars"></div>
-
-    <!-- 🔮 МАГИЧЕСКИЙ КРУГ -->
     <div class="magic-circle" id="magicCircle">
       <div class="magic-circle-inner"></div>
       <div class="magic-circle-outer"></div>
     </div>
-
-    <!-- 🎨 ЦЕНТРАЛЬНЫЙ КОНТЕНТ -->
     <div class="center-content">
       <div class="title">🌙 ОРАКУЛ СНОВ</div>
       <div class="subtitle">Oracle Snow</div>
-
-      <a href="https://t.me/Groq_official_bot?start"
-         class="portal-button"
-         onclick="goToPortal(event)">
+      <a href="https://t.me/Groq_official_bot?start" class="portal-button" onclick="goToPortal(event)">
         <span>🌙</span>
         <span>Войти в портал</span>
       </a>
@@ -317,15 +292,8 @@
     const magicStage = document.getElementById('magic-stage');
     const introVideo = document.getElementById('intro-video');
 
-    // 🎬 КОГДА ВИДЕО ЗАКОНЧИЛОСЬ - ПОКАЗАТЬ МАГИЧЕСКУЮ СТРАНИЦУ
     introVideo.addEventListener('ended', showMagicStage);
-
-    // ⏩ ЕСЛИ ВИДЕО НЕ ЗАГРУЗИЛОСЬ - ПОКАЗАТЬ МАГИЧЕСКУЮ СТРАНИЦУ ЧЕРЕЗ 5 СЕК
-    setTimeout(() => {
-      if (!magicStage.classList.contains('visible')) {
-        showMagicStage();
-      }
-    }, 5000);
+    setTimeout(() => { if (!magicStage.classList.contains('visible')) showMagicStage(); }, 10000);
 
     function showMagicStage() {
       videoStage.classList.add('hidden');
@@ -333,32 +301,23 @@
       initMagicEffects();
     }
 
-    // 🌟 ГЕНЕРАЦИЯ ЗВЕЗД
     function initMagicEffects() {
       const starsContainer = document.getElementById('stars');
-      const starCount = 150;
-
-      for (let i = 0; i < starCount; i++) {
+      for (let i = 0; i < 150; i++) {
         const star = document.createElement('div');
         star.classList.add('star');
-
         const size = Math.random() * 3 + 1;
         star.style.width = size + 'px';
         star.style.height = size + 'px';
-
         star.style.left = Math.random() * 100 + '%';
         star.style.top = Math.random() * 100 + '%';
-
         star.style.animationDelay = Math.random() * 4 + 's';
         star.style.animationDuration = (Math.random() * 3 + 2) + 's';
-
         starsContainer.appendChild(star);
       }
 
-      // ✨ МИСТИЧЕСКИЕ СИМВОЛЫ
       const mysticContainer = document.getElementById('mysticSymbols');
       const symbols = ['☽', '☾', '✧', '✦', '❋', '✵', '❂', '✺'];
-
       symbols.forEach((symbol, index) => {
         const span = document.createElement('span');
         span.classList.add('mystic-symbol');
@@ -367,16 +326,13 @@
         mysticContainer.appendChild(span);
       });
 
-      // 🔮 РУНЫ
       const magicCircle = document.getElementById('magicCircle');
       const runes = ['ᚠ', 'ᚢ', 'ᚦ', 'ᚨ', 'ᚱ', 'ᚲ', 'ᚷ', 'ᚹ', 'ᚺ', 'ᚾ', 'ᛁ', 'ᛃ'];
       const radius = 250;
-
       runes.forEach((rune, index) => {
         const angle = (360 / runes.length) * index;
         const x = Math.cos((angle * Math.PI) / 180) * radius;
         const y = Math.sin((angle * Math.PI) / 180) * radius;
-
         const runeSpan = document.createElement('span');
         runeSpan.classList.add('rune');
         runeSpan.textContent = rune;
@@ -384,27 +340,19 @@
         runeSpan.style.top = `calc(50% + ${y}px)`;
         runeSpan.style.transform = 'translate(-50%, -50%)';
         runeSpan.style.animationDelay = `${index * 0.25}s`;
-
         magicCircle.appendChild(runeSpan);
       });
     }
 
-    // 🌙 ПЕРЕХОД В БОТ
     function goToPortal(event) {
       event.preventDefault();
       magicStage.style.transition = 'opacity 0.5s ease';
       magicStage.style.opacity = '0';
-      setTimeout(() => {
-        window.location.href = 'https://t.me/Groq_official_bot?start';
-      }, 500);
+      setTimeout(() => { window.location.href = 'https://t.me/Groq_official_bot?start'; }, 500);
     }
 
-    // 🎬 ПОПЫТКА ВКЛЮЧИТЬ ЗВУК (работает только если пользователь взаимодействовал)
     introVideo.muted = false;
-    introVideo.play().catch(() => {
-      introVideo.muted = true;
-      introVideo.play();
-    });
+    introVideo.play().catch(() => { introVideo.muted = true; introVideo.play(); });
   </script>
 </body>
 </html>
