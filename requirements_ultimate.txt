@@ -1,0 +1,70 @@
+# ConsciousAI Ultimate v4.0 - All Dependencies
+
+# ===== Core Dependencies =====
+python-dotenv>=1.0.0
+
+# ===== LLM Integration =====
+openai>=1.3.0
+anthropic>=0.7.0
+
+# ===== Web & API =====
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+aiohttp>=3.9.0
+
+# ===== Database =====
+# SQLite built-in with Python
+
+# ===== Data Science & ML =====
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.2
+matplotlib>=3.8.2
+
+# ===== Graph & Visualization =====
+networkx>=3.2.1
+
+# ===== Bot Frameworks (optional) =====
+python-telegram-bot>=20.0  # Для Telegram ботов
+# discord.py>=2.3.0  # Раскомментировать для Discord ботов
+
+# ===== CLI Tools =====
+click>=8.1.0
+rich>=13.0.0
+
+# ===== Code Quality =====
+autopep8>=2.0.0  # Форматирование кода
+
+# ===== Testing =====
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# ===== Utilities =====
+requests>=2.31.0
+
+# ===== CORS (для веб-сервисов) =====
+# Уже включено в FastAPI
+
+# ===== Async Support =====
+asyncio  # Built-in since Python 3.4+
+
+# ===== JSON handling =====
+# Built-in json module
+
+# ===== File handling =====
+# Built-in os, shutil modules
+
+# ===== Optional: Code execution sandbox =====
+# RestrictedPython>=6.0  # Раскомментировать для безопасного выполнения кода
+
+# ===== Optional: Web scraping =====
+# beautifulsoup4>=4.12.0  # Раскомментировать для парсинга HTML
+# lxml>=4.9.0  # Парсер для BeautifulSoup
+
+# ===== Optional: Advanced NLP =====
+# transformers>=4.35.0  # Раскомментировать для локальных LLM
+# torch>=2.1.0  # Для transformers
+
+# ===== Note: Python 3.11+ recommended =====
+# Убедитесь, что используете Python 3.11 или новее для лучшей производительности

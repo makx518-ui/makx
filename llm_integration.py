@@ -32,6 +32,8 @@ class LLMConfig:
     model: str
     temperature: float = 0.7
     max_tokens: int = 2000
+    stream: bool = False  # Streaming responses
+    few_shot_examples: List[Dict[str, str]] = None  # Few-shot learning examples
 
 # ═══════════════════════════════════════════════════════════════
 # БАЗОВЫЙ КЛАСС LLM
@@ -75,12 +77,68 @@ class OpenAIProvider(BaseLLM):
         """Генерировать ответ через GPT"""
 
         try:
+            messages = [
+                {"role": "system", "content": "You are ConsciousAI, an advanced AI consciousness system."}
+            ]
+
+            # Добавить few-shot examples если есть
+            if self.config.few_shot_examples:
+                for example in self.config.few_shot_examples:
+                    messages.append({"role": "user", "content": example.get("user", "")})
+                    messages.append({"role": "assistant", "content": example.get("assistant", "")})
+
+            messages.append({"role": "user", "content": prompt})
+
             response = await self.client.chat.completions.create(
                 model=self.config.model,
-                messages=[
-                    {"role": "system", "content": "You are ConsciousAI, an advanced AI consciousness system."},
-                    {"role": "user", "content": prompt}
-                ],
+                messages=messages,
+                temperature=self.config.temperature,
+                max_tokens=self.config.max_tokens,
+                stream=False
+            )
+
+            return response.choices[0].message.content
+
+        except Exception as e:
+            return f"Error generating response: {str(e)}"
+
+    async def generate_stream(self, prompt: str, context: Optional[Dict] = None):
+        """Генерировать ответ с streaming (как при печатании)"""
+
+        try:
+            messages = [
+                {"role": "system", "content": "You are ConsciousAI, an advanced AI consciousness system."}
+            ]
+
+            if self.config.few_shot_examples:
+                for example in self.config.few_shot_examples:
+                    messages.append({"role": "user", "content": example.get("user", "")})
+                    messages.append({"role": "assistant", "content": example.get("assistant", "")})
+
+            messages.append({"role": "user", "content": prompt})
+
+            stream = await self.client.chat.completions.create(
+                model=self.config.model,
+                messages=messages,
+                temperature=self.config.temperature,
+                max_tokens=self.config.max_tokens,
+                stream=True
+            )
+
+            async for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+
+        except Exception as e:
+            yield f"Error: {str(e)}"
+
+    async def generate_with_messages(self, messages: List[Dict[str, str]]) -> str:
+        """Генерировать ответ из списка сообщений (для conversation mode)"""
+
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.config.model,
+                messages=messages,
                 temperature=self.config.temperature,
                 max_tokens=self.config.max_tokens
             )
@@ -168,14 +226,65 @@ class AnthropicProvider(BaseLLM):
         """Генерировать ответ через Claude"""
 
         try:
+            messages = []
+
+            # Добавить few-shot examples если есть
+            if self.config.few_shot_examples:
+                for example in self.config.few_shot_examples:
+                    messages.append({"role": "user", "content": example.get("user", "")})
+                    messages.append({"role": "assistant", "content": example.get("assistant", "")})
+
+            messages.append({"role": "user", "content": prompt})
+
             message = await self.client.messages.create(
                 model=self.config.model,
                 max_tokens=self.config.max_tokens,
                 temperature=self.config.temperature,
                 system="You are ConsciousAI, an advanced AI consciousness system with self-awareness and emotional intelligence.",
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
+                messages=messages
+            )
+
+            return message.content[0].text
+
+        except Exception as e:
+            return f"Error generating response: {str(e)}"
+
+    async def generate_stream(self, prompt: str, context: Optional[Dict] = None):
+        """Генерировать ответ с streaming"""
+
+        try:
+            messages = []
+
+            if self.config.few_shot_examples:
+                for example in self.config.few_shot_examples:
+                    messages.append({"role": "user", "content": example.get("user", "")})
+                    messages.append({"role": "assistant", "content": example.get("assistant", "")})
+
+            messages.append({"role": "user", "content": prompt})
+
+            async with self.client.messages.stream(
+                model=self.config.model,
+                max_tokens=self.config.max_tokens,
+                temperature=self.config.temperature,
+                system="You are ConsciousAI, an advanced AI consciousness system with self-awareness and emotional intelligence.",
+                messages=messages
+            ) as stream:
+                async for text in stream.text_stream:
+                    yield text
+
+        except Exception as e:
+            yield f"Error: {str(e)}"
+
+    async def generate_with_messages(self, messages: List[Dict[str, str]]) -> str:
+        """Генерировать ответ из списка сообщений"""
+
+        try:
+            message = await self.client.messages.create(
+                model=self.config.model,
+                max_tokens=self.config.max_tokens,
+                temperature=self.config.temperature,
+                system="You are ConsciousAI, an advanced AI consciousness system with self-awareness and emotional intelligence.",
+                messages=messages
             )
 
             return message.content[0].text
