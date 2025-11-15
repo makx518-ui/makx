@@ -1,6 +1,6 @@
 """
 🌟 ConsciousAI Ultimate - Полная интеграция всех систем
-Автор: ConsciousAI v4.0
+Автор: ConsciousAI v4.2
 Дата: 2025-11-15
 
 Возможности:
@@ -12,6 +12,10 @@
 - Персональность и стиль общения
 - Создание проектов под ключ
 - Self-correction и адаптивное обучение
+- Маркетинговая автоматизация 24/7 (v4.2)
+- Автономное продвижение в соцсетях
+- AI-генерация продающих текстов
+- Автопоиск площадок и рассылки
 """
 
 import asyncio
@@ -52,6 +56,23 @@ from intelligent_response_generator import IntelligentResponseGenerator
 from retry_handler import retry_with_backoff, RetryConfig
 from caching_system import CacheManager, cached
 from project_validator import ProjectValidator
+
+# Модули маркетинговой автоматизации v4.2
+from marketing_automation_agent import (
+    MarketingAutomationAgent,
+    Project as MarketingProject,
+    Campaign,
+    CampaignType
+)
+from social_media_manager import SocialMediaManager, Platform
+from marketing_content_generator import (
+    MarketingContentGenerator,
+    ContentRequest,
+    ContentType,
+    ToneOfVoice
+)
+from marketing_analytics_tracker import MarketingAnalyticsTracker, MetricType
+from marketing_outreach_scheduler import OutreachBot, CampaignScheduler
 
 # Импорты из базовых систем (если доступны)
 try:
@@ -170,6 +191,26 @@ class ConsciousAI_Ultimate:
         print("      ✓ Intelligent Response Generator (Intent Recognition)")
         print("      ✓ Caching System (LRU + Redis support)")
         print("      ✓ Project Validator (Syntax + Lint + Security)")
+
+        # 9. Маркетинговая автоматизация v4.2
+        print("   📱 Активирую маркетинговую автоматизацию v4.2...")
+        self.marketing_agent = MarketingAutomationAgent()
+        self.content_generator = MarketingContentGenerator()
+        self.analytics_tracker = MarketingAnalyticsTracker()
+        self.outreach_bot = OutreachBot()
+        self.campaign_scheduler = CampaignScheduler()
+
+        # Подключить модули к главному агенту
+        self.marketing_agent.content_generator = self.content_generator
+        self.marketing_agent.analytics_tracker = self.analytics_tracker
+        self.marketing_agent.outreach_bot = self.outreach_bot
+        self.marketing_agent.campaign_scheduler = self.campaign_scheduler
+
+        print("      ✓ Marketing Automation Agent (24/7 автомаркетолог)")
+        print("      ✓ Content Generator (продажные тексты, статьи, SEO)")
+        print("      ✓ Analytics Tracker (метрики, A/B тесты, ROI)")
+        print("      ✓ Outreach Bot (автопоиск площадок)")
+        print("      ✓ Campaign Scheduler (автопостинг по расписанию)")
 
         # 9. Текущая сессия
         self.current_conversation_id = None
@@ -387,6 +428,116 @@ class ConsciousAI_Ultimate:
             return {}
 
         return self.conversation_manager.get_conversation_summary(conv_id)
+
+    async def launch_marketing_campaign(
+        self,
+        product_name: str,
+        product_description: str,
+        target_audience: str,
+        unique_selling_points: List[str],
+        keywords: List[str],
+        platforms: List[str],
+        duration_days: int = 30,
+        social_media_credentials: Optional[Dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Запустить автономную маркетинговую кампанию 24/7
+
+        Args:
+            product_name: Название продукта
+            product_description: Описание
+            target_audience: Целевая аудитория
+            unique_selling_points: Уникальные преимущества
+            keywords: Ключевые слова
+            platforms: Платформы (twitter, vk, telegram, facebook, reddit)
+            duration_days: Длительность кампании
+            social_media_credentials: API ключи для соцсетей
+
+        Returns:
+            Информация о запущенной кампании
+        """
+        print(f"\n🚀 Запуск маркетинговой кампании для {product_name}")
+
+        # Создать маркетинговый проект
+        marketing_project = MarketingProject(
+            name=product_name,
+            description=product_description,
+            target_audience=target_audience,
+            keywords=keywords,
+            unique_selling_points=unique_selling_points,
+            project_type="product",
+            tags=keywords
+        )
+
+        # Конвертировать платформы
+        platform_enums = []
+        for platform_str in platforms:
+            try:
+                platform_enums.append(Platform[platform_str.upper()])
+            except KeyError:
+                print(f"⚠️ Неизвестная платформа: {platform_str}")
+
+        # Создать кампанию
+        campaign = await self.marketing_agent.create_campaign(
+            project=marketing_project,
+            campaign_type=CampaignType.PRODUCT_LAUNCH,
+            platforms=platform_enums,
+            duration_days=duration_days
+        )
+
+        print(f"✅ Кампания создана: {campaign.id}")
+        print(f"   Платформы: {[p.value for p in platform_enums]}")
+
+        # Если предоставлены credentials - настроить Social Media Manager
+        if social_media_credentials:
+            credentials_converted = {}
+            for platform_str, creds in social_media_credentials.items():
+                try:
+                    platform_enum = Platform[platform_str.upper()]
+                    credentials_converted[platform_enum] = creds
+                except KeyError:
+                    pass
+
+            if credentials_converted:
+                social_manager = SocialMediaManager(credentials_converted)
+                self.marketing_agent.social_media_manager = social_manager
+                print(f"   ✓ Social Media Manager настроен для {len(credentials_converted)} платформ")
+
+        # Генерировать начальный контент
+        print("\n📝 Генерация контента...")
+        content_request = ContentRequest(
+            content_type=ContentType.SALES_COPY,
+            product_name=product_name,
+            product_description=product_description,
+            target_audience=target_audience,
+            unique_selling_points=unique_selling_points,
+            keywords=keywords,
+            tone=ToneOfVoice.ENTHUSIASTIC,
+            language="ru"
+        )
+
+        sales_copy = await self.content_generator.generate(content_request)
+        print(f"✅ Контент сгенерирован: {len(sales_copy.content)} символов")
+
+        # Найти площадки для аутрича
+        print("\n🔍 Поиск площадок для продвижения...")
+        targets = await self.outreach_bot.find_platforms(
+            keywords=keywords,
+            target_audience=target_audience,
+            platform_types=["reddit", "telegram", "forum"]
+        )
+        print(f"✅ Найдено площадок: {len(targets)}")
+
+        # Вернуть информацию о кампании
+        return {
+            "success": True,
+            "campaign_id": campaign.id,
+            "platforms": [p.value for p in platform_enums],
+            "duration_days": duration_days,
+            "generated_content": sales_copy.content,
+            "outreach_targets": len(targets),
+            "message": f"Маркетинговая кампания запущена! ID: {campaign.id}"
+        }
 
     def save_all(self):
         """Сохранить все данные"""

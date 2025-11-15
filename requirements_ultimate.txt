@@ -1,4 +1,5 @@
-# ConsciousAI Ultimate v4.0 - All Dependencies
+# ConsciousAI Ultimate v4.2 - All Dependencies
+# Includes Marketing Automation features
 
 # ===== Core Dependencies =====
 python-dotenv>=1.0.0
@@ -13,7 +14,7 @@ anthropic>=0.7.0
 # ===== Web & API =====
 fastapi>=0.104.1
 uvicorn[standard]>=0.24.0
-aiohttp>=3.9.0
+aiohttp>=3.9.0  # Для Marketing Automation (Social Media APIs)
 
 # ===== Database =====
 # SQLite built-in with Python
