@@ -63,3 +63,12 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Test artifacts and generated projects
+test_simulation_projects/
+test_simulation_conversations.db
+test_simulation_report.json
+website_project/
+demo_projects/
+ultimate_demo_projects/
+demo_conversations.db
