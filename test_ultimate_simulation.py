@@ -333,9 +333,9 @@ async def test_7_language_detection(ai, results):
     """Тест 7: Автоопределение языка"""
     print_header("ТЕСТ 7: Автоопределение языка")
 
-    from conversation_manager import LanguageDetector
+    from enhanced_language_detector import EnhancedLanguageDetector
 
-    detector = LanguageDetector()
+    detector = EnhancedLanguageDetector()
 
     test_cases = [
         ("Привет, как дела?", "ru"),
