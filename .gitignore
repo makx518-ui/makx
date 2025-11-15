@@ -30,6 +30,25 @@ env/
 *.sqlite
 *.sqlite3
 conscious_ai_memory.db
+api_memory.db
+
+# ML models
+*.pkl
+*.h5
+*.pt
+*.pth
+
+# Graph visualizations
+*.png
+*.jpg
+*.json
+knowledge_graph.json
+example_graph.json
+example_graph.png
+
+# Environment
+.env
+.env.local
 
 # IDE
 .vscode/
