@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Скачать ConsciousAI Ultimate v4.2</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .download-btn {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            font-size: 1.5em;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        .download-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        .info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .info h3 {
+            margin-top: 0;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        li:before {
+            content: "✅ ";
+        }
+        .emoji {
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emoji">🚀</div>
+        <h1>ConsciousAI Ultimate v4.2</h1>
+        <div class="subtitle">Автономный AI с маркетинговой автоматизацией 24/7</div>
+
+        <button class="download-btn" onclick="downloadZip()">
+            📥 Скачать ZIP (100 KB)
+        </button>
+
+        <div class="info">
+            <h3>📦 Что внутри:</h3>
+            <ul>
+                <li>21 файл Python кода (2757 строк)</li>
+                <li>Все модули v4.1 + v4.2</li>
+                <li>Маркетинговая автоматизация</li>
+                <li>Инструкция по установке</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <h3>⚡ Быстрый старт:</h3>
+            <ul>
+                <li>Распаковать ZIP</li>
+                <li>pip install -r requirements_ultimate.txt</li>
+                <li>python conscious_ai_ultimate.py</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <h3>✨ Возможности:</h3>
+            <ul>
+                <li>Создание проектов под ключ</li>
+                <li>Продвижение в 7+ соцсетях</li>
+                <li>AI-генерация контента</li>
+                <li>Автопоиск площадок</li>
+                <li>Аналитика и ROI</li>
+                <li>Всё автономно 24/7!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function downloadZip() {
+            // Создаём ссылку на файл
+            const link = document.createElement('a');
+            link.href = 'ConsciousAI_Ultimate_v4.2.zip';
+            link.download = 'ConsciousAI_Ultimate_v4.2.zip';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Показываем сообщение
+            alert('✅ Скачивание началось!\n\nПосле скачивания:\n1. Распакуй ZIP\n2. pip install -r requirements_ultimate.txt\n3. python conscious_ai_ultimate.py');
+        }
+    </script>
+</body>
+</html>

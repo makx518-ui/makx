@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# Database files (generated at runtime)
+*.db
+*.sqlite
+*.sqlite3
+conscious_ai_memory.db
+api_memory.db
+
+# ML models
+*.pkl
+*.h5
+*.pt
+*.pth
+
+# Graph visualizations
+*.png
+*.jpg
+*.json
+knowledge_graph.json
+example_graph.json
+example_graph.png
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test artifacts and generated projects
+test_simulation_projects/
+test_simulation_conversations.db
+test_simulation_report.json
+website_project/
+demo_projects/
+ultimate_demo_projects/
+demo_conversations.db
