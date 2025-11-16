@@ -1,0 +1,1776 @@
+=== ConsciousAI v5.1 - ПОЛНЫЙ КОД ДЛЯ АНАЛИЗА GPT-5 ===
+
+СТРУКТУРА ПАКЕТА:
+conscious_ai/__init__.py
+conscious_ai/core/__init__.py
+conscious_ai/interface/__init__.py
+conscious_ai/memory/__init__.py
+conscious_ai/memory/base.py
+conscious_ai/memory/sqlite_store.py
+conscious_ai/reasoning/__init__.py
+conscious_ai/utils/__init__.py
+conscious_ai/utils/exceptions.py
+conscious_ai/utils/logger.py
+
+======================================
+ФАЙЛ: conscious_ai/__init__.py
+======================================
+"""
+ConsciousAI v5.1 - Мета-Сознательный AI
+Единый пакет с профессиональной архитектурой
+
+Рекомендация GPT-5: Создать единое пространство имён
+
+Архитектура:
+├── core/        - Ядро системы (Pipeline, AI контейнер)
+├── memory/      - Смысловая память (зёрна, хранилища)
+├── reasoning/   - Рассуждения (мета-когниция, инсайты)
+├── interface/   - Пользовательский интерфейс
+└── utils/       - Утилиты (логирование, ошибки)
+
+Использование:
+    from conscious_ai import ConsciousAI
+    ai = ConsciousAI()
+    response = await ai.think("Что такое сознание?")
+
+    # Или отдельные компоненты
+    from conscious_ai.memory import SemanticKernel, InMemoryStore
+    from conscious_ai.utils import get_logger, ConsciousAIError
+"""
+
+__version__ = "5.1.0"
+__author__ = "Claude & GPT-5 Collaboration"
+__license__ = "MIT"
+
+# Импорты из подмодулей
+from .utils import (
+    get_logger,
+    set_log_level,
+    ConsciousAIError,
+    handle_error,
+    safe_execute,
+)
+
+from .memory import (
+    KernelType,
+    SemanticKernel,
+    SearchQuery,
+    SearchResult,
+    BaseMemoryStore,
+    InMemoryStore,
+)
+
+# Ленивый импорт для тяжёлых модулей
+def get_memory_store(store_type: str = "memory", **kwargs):
+    """
+    Получить хранилище памяти
+
+    Args:
+        store_type: "memory", "sqlite", "vector"
+        **kwargs: Параметры хранилища
+
+    Returns:
+        Экземпляр BaseMemoryStore
+
+    Пример:
+        store = get_memory_store("memory")
+        store = get_memory_store("sqlite", db_path="memory.db")
+    """
+    if store_type == "memory":
+        return InMemoryStore()
+    elif store_type == "sqlite":
+        # TODO: Импортировать SQLiteMemoryStore когда будет готов
+        from .memory.sqlite_store import SQLiteMemoryStore
+        return SQLiteMemoryStore(**kwargs)
+    else:
+        raise ValueError(f"Unknown store type: {store_type}")
+
+
+# Информация о пакете
+def info():
+    """Показать информацию о пакете"""
+    print(f"""
+╔═══════════════════════════════════════════════════════╗
+║           🧠 ConsciousAI v{__version__}                      ║
+║                                                       ║
+║  Мета-Сознательный AI с смысловой памятью           ║
+║                                                       ║
+║  Модули:                                              ║
+║  • memory/    - Семантические зёрна и хранилища     ║
+║  • reasoning/ - Мета-когниция и инсайты             ║
+║  • core/      - Ядро и Pipeline                      ║
+║  • interface/ - CLI и команды                        ║
+║  • utils/     - Логирование и ошибки                ║
+║                                                       ║
+║  Авторы: {__author__}              ║
+╚═══════════════════════════════════════════════════════╝
+    """)
+
+
+__all__ = [
+    # Версия
+    '__version__',
+    '__author__',
+    # Утилиты
+    'get_logger',
+    'set_log_level',
+    'ConsciousAIError',
+    'handle_error',
+    'safe_execute',
+    # Память
+    'KernelType',
+    'SemanticKernel',
+    'SearchQuery',
+    'SearchResult',
+    'BaseMemoryStore',
+    'InMemoryStore',
+    'get_memory_store',
+    # Информация
+    'info',
+]
+
+
+======================================
+ФАЙЛ: conscious_ai/utils/logger.py
+======================================
+"""
+ConsciousAI - Единая система логирования
+Цветной вывод + файловое логирование + уровни
+
+Рекомендация GPT-5: Ввести единый модуль логирования
+"""
+
+import logging
+import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+
+
+class ColoredFormatter(logging.Formatter):
+    """Форматтер с цветным выводом в терминал"""
+
+    # ANSI цвета
+    COLORS = {
+        'DEBUG': '\033[36m',     # Cyan
+        'INFO': '\033[32m',      # Green
+        'WARNING': '\033[33m',   # Yellow
+        'ERROR': '\033[31m',     # Red
+        'CRITICAL': '\033[35m',  # Magenta
+        'RESET': '\033[0m',
+        'BOLD': '\033[1m',
+    }
+
+    def format(self, record: logging.LogRecord) -> str:
+        # Добавить цвета для терминала
+        color = self.COLORS.get(record.levelname, '')
+        reset = self.COLORS['RESET']
+        bold = self.COLORS['BOLD']
+
+        # Форматировать timestamp
+        timestamp = datetime.fromtimestamp(record.created).strftime('%H:%M:%S')
+
+        # Короткое имя модуля
+        module = record.name.split('.')[-1][:15]
+
+        # Форматированное сообщение
+        formatted = (
+            f"{color}{bold}[{timestamp}]{reset} "
+            f"{color}[{record.levelname:8}]{reset} "
+            f"[{module:15}] "
+            f"{record.getMessage()}"
+        )
+
+        # Добавить exception info если есть
+        if record.exc_info:
+            formatted += f"\n{self.formatException(record.exc_info)}"
+
+        return formatted
+
+
+class FileFormatter(logging.Formatter):
+    """Форматтер для файлового логирования (без цветов)"""
+
+    def format(self, record: logging.LogRecord) -> str:
+        timestamp = datetime.fromtimestamp(record.created).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+
+        formatted = (
+            f"[{timestamp}] "
+            f"[{record.levelname:8}] "
+            f"[{record.name:30}] "
+            f"{record.getMessage()}"
+        )
+
+        if record.exc_info:
+            formatted += f"\n{self.formatException(record.exc_info)}"
+
+        return formatted
+
+
+class AILogger:
+    """
+    Единый логгер для ConsciousAI
+
+    Использование:
+        from conscious_ai.utils.logger import get_logger
+
+        logger = get_logger(__name__)
+        logger.info("Сообщение")
+        logger.error("Ошибка", exc_info=True)
+    """
+
+    _instance: Optional['AILogger'] = None
+    _initialized: bool = False
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        if not AILogger._initialized:
+            self._setup_root_logger()
+            AILogger._initialized = True
+
+    def _setup_root_logger(self):
+        """Настроить корневой логгер"""
+        # Получить корневой логгер для conscious_ai
+        self.root_logger = logging.getLogger('conscious_ai')
+        self.root_logger.setLevel(logging.DEBUG)
+
+        # Очистить существующие handlers
+        self.root_logger.handlers.clear()
+
+        # Console handler (цветной)
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(ColoredFormatter())
+        self.root_logger.addHandler(console_handler)
+
+        # File handler (полный лог)
+        log_dir = Path('logs')
+        log_dir.mkdir(exist_ok=True)
+
+        log_file = log_dir / f"conscious_ai_{datetime.now().strftime('%Y%m%d')}.log"
+        file_handler = logging.FileHandler(log_file, encoding='utf-8')
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(FileFormatter())
+        self.root_logger.addHandler(file_handler)
+
+        # Не пропускать логи в корневой logger Python
+        self.root_logger.propagate = False
+
+    def get_logger(self, name: str) -> logging.Logger:
+        """
+        Получить логгер для модуля
+
+        Args:
+            name: Имя модуля (__name__)
+
+        Returns:
+            Настроенный логгер
+        """
+        # Убедиться что имя начинается с conscious_ai
+        if not name.startswith('conscious_ai'):
+            name = f'conscious_ai.{name}'
+
+        return logging.getLogger(name)
+
+    def set_level(self, level: str):
+        """
+        Установить уровень логирования
+
+        Args:
+            level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+        """
+        level_map = {
+            'DEBUG': logging.DEBUG,
+            'INFO': logging.INFO,
+            'WARNING': logging.WARNING,
+            'ERROR': logging.ERROR,
+            'CRITICAL': logging.CRITICAL
+        }
+
+        log_level = level_map.get(level.upper(), logging.INFO)
+        self.root_logger.setLevel(log_level)
+
+        # Обновить console handler
+        for handler in self.root_logger.handlers:
+            if isinstance(handler, logging.StreamHandler) and not isinstance(handler, logging.FileHandler):
+                handler.setLevel(log_level)
+
+    def add_file_handler(self, filepath: str, level: str = 'DEBUG'):
+        """
+        Добавить дополнительный файловый handler
+
+        Args:
+            filepath: Путь к файлу
+            level: Уровень логирования
+        """
+        handler = logging.FileHandler(filepath, encoding='utf-8')
+        handler.setLevel(getattr(logging, level.upper(), logging.DEBUG))
+        handler.setFormatter(FileFormatter())
+        self.root_logger.addHandler(handler)
+
+
+# Singleton instance
+_logger_instance = AILogger()
+
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Получить логгер для модуля
+
+    Args:
+        name: Имя модуля (обычно __name__)
+
+    Returns:
+        Настроенный логгер
+
+    Пример:
+        logger = get_logger(__name__)
+        logger.info("AI инициализирован")
+        logger.debug("Детали отладки")
+        logger.warning("Внимание!")
+        logger.error("Ошибка!", exc_info=True)
+    """
+    return _logger_instance.get_logger(name)
+
+
+def set_log_level(level: str):
+    """
+    Установить глобальный уровень логирования
+
+    Args:
+        level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    """
+    _logger_instance.set_level(level)
+
+
+# Удобные функции для быстрого логирования
+def log_info(message: str):
+    """Быстрое INFO сообщение"""
+    get_logger('quick').info(message)
+
+
+def log_error(message: str, exc_info: bool = False):
+    """Быстрое ERROR сообщение"""
+    get_logger('quick').error(message, exc_info=exc_info)
+
+
+def log_debug(message: str):
+    """Быстрое DEBUG сообщение"""
+    get_logger('quick').debug(message)
+
+
+# Пример использования
+if __name__ == "__main__":
+    # Создать логгер
+    logger = get_logger(__name__)
+
+    print("🔧 Тест системы логирования:\n")
+
+    # Различные уровни
+    logger.debug("Debug сообщение (не видно в консоли по умолчанию)")
+    logger.info("Info сообщение - обычная информация")
+    logger.warning("Warning - предупреждение")
+    logger.error("Error - ошибка")
+    logger.critical("Critical - критическая ошибка")
+
+    # С exception
+    try:
+        raise ValueError("Тестовое исключение")
+    except Exception:
+        logger.error("Поймано исключение", exc_info=True)
+
+    # Изменить уровень
+    print("\n📊 Меняю уровень на DEBUG:")
+    set_log_level('DEBUG')
+    logger.debug("Теперь debug виден!")
+
+    print("\n✅ Логирование работает!")
+    print("📁 Логи сохраняются в папку logs/")
+
+
+======================================
+ФАЙЛ: conscious_ai/utils/exceptions.py
+======================================
+"""
+ConsciousAI - Иерархия исключений
+Стандартизированная обработка ошибок
+
+Рекомендация GPT-5: Создать BaseError и наследники для модулей
+"""
+
+from typing import Optional, Dict, Any
+
+
+class ConsciousAIError(Exception):
+    """
+    Базовое исключение для всех ошибок ConsciousAI
+
+    Все ошибки системы наследуются от этого класса,
+    что позволяет ловить все ошибки одним except
+    """
+
+    def __init__(
+        self,
+        message: str,
+        error_code: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        self.message = message
+        self.error_code = error_code or "UNKNOWN_ERROR"
+        self.details = details or {}
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        base = f"[{self.error_code}] {self.message}"
+        if self.details:
+            base += f" | Details: {self.details}"
+        return base
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Сериализация ошибки"""
+        return {
+            "error": self.error_code,
+            "message": self.message,
+            "details": self.details
+        }
+
+
+# ============================================
+# ОШИБКИ ПАМЯТИ (Memory)
+# ============================================
+
+class MemoryError(ConsciousAIError):
+    """Базовая ошибка модуля памяти"""
+
+    def __init__(self, message: str, details: Optional[Dict] = None):
+        super().__init__(message, "MEMORY_ERROR", details)
+
+
+class MemoryStorageError(MemoryError):
+    """Ошибка сохранения в память"""
+
+    def __init__(self, message: str, details: Optional[Dict] = None):
+        super().__init__(message, details)
+        self.error_code = "MEMORY_STORAGE_ERROR"
+
+
+class MemoryRetrievalError(MemoryError):
+    """Ошибка получения из памяти"""
+
+    def __init__(self, message: str, details: Optional[Dict] = None):
+        super().__init__(message, details)
+        self.error_code = "MEMORY_RETRIEVAL_ERROR"
+
+
+class MemoryNotFoundError(MemoryError):
+    """Запись не найдена в памяти"""
+
+    def __init__(self, kernel_id: str):
+        super().__init__(
+            f"Kernel not found: {kernel_id}",
+            {"kernel_id": kernel_id}
+        )
+        self.error_code = "MEMORY_NOT_FOUND"
+
+
+class MemoryConnectionError(MemoryError):
+    """Ошибка подключения к хранилищу"""
+
+    def __init__(self, storage_type: str, details: Optional[Dict] = None):
+        super().__init__(
+            f"Cannot connect to {storage_type} storage",
+            details
+        )
+        self.error_code = "MEMORY_CONNECTION_ERROR"
+
+
+# ============================================
+# ОШИБКИ МЕТА-КОГНИЦИИ (Meta-Cognitive)
+# ============================================
+
+class MetaCognitiveError(ConsciousAIError):
+    """Базовая ошибка мета-когнитивного модуля"""
+
+    def __init__(self, message: str, details: Optional[Dict] = None):
+        super().__init__(message, "META_COGNITIVE_ERROR", details)
+
+
+class ReflectionError(MetaCognitiveError):
+    """Ошибка при рефлексии"""
+
+    def __init__(self, message: str, details: Optional[Dict] = None):
+        super().__init__(message, details)
+        self.error_code = "REFLECTION_ERROR"
+
+
+class SelfEvaluationError(MetaCognitiveError):
+    """Ошибка при самооценке"""
+
+    def __init__(self, message: str, details: Optional[Dict] = None):
+        super().__init__(message, details)
+        self.error_code = "SELF_EVALUATION_ERROR"
+
+
+# ============================================
+# ОШИБКИ ИНСАЙТОВ (Insights)
+# ============================================
+
+class InsightError(ConsciousAIError):
+    """Базовая ошибка генерации инсайтов"""
+
+    def __init__(self, message: str, details: Optional[Dict] = None):
+        super().__init__(message, "INSIGHT_ERROR", details)
+
+
+class InsightGenerationError(InsightError):
+    """Не удалось сгенерировать инсайт"""
+
+    def __init__(self, topic: str, reason: str):
+        super().__init__(
+            f"Cannot generate insight for '{topic}': {reason}",
+            {"topic": topic, "reason": reason}
+        )
+        self.error_code = "INSIGHT_GENERATION_ERROR"
+
+
+class AnalogyNotFoundError(InsightError):
+    """Аналогия не найдена"""
+
+    def __init__(self, concept: str):
+        super().__init__(
+            f"No analogy found for concept: {concept}",
+            {"concept": concept}
+        )
+        self.error_code = "ANALOGY_NOT_FOUND"
+
+
+# ============================================
+# ОШИБКИ ИНТЕРФЕЙСА (Interface)
+# ============================================
+
+class InterfaceError(ConsciousAIError):
+    """Базовая ошибка интерфейса"""
+
+    def __init__(self, message: str, details: Optional[Dict] = None):
+        super().__init__(message, "INTERFACE_ERROR", details)
+
+
+class CommandParseError(InterfaceError):
+    """Ошибка парсинга команды"""
+
+    def __init__(self, command: str, reason: str):
+        super().__init__(
+            f"Cannot parse command '{command}': {reason}",
+            {"command": command, "reason": reason}
+        )
+        self.error_code = "COMMAND_PARSE_ERROR"
+
+
+class InvalidCommandError(InterfaceError):
+    """Неизвестная команда"""
+
+    def __init__(self, command: str):
+        super().__init__(
+            f"Unknown command: {command}",
+            {"command": command}
+        )
+        self.error_code = "INVALID_COMMAND"
+
+
+# ============================================
+# ОШИБКИ ЯДРА (Core)
+# ============================================
+
+class CoreError(ConsciousAIError):
+    """Базовая ошибка ядра AI"""
+
+    def __init__(self, message: str, details: Optional[Dict] = None):
+        super().__init__(message, "CORE_ERROR", details)
+
+
+class InitializationError(CoreError):
+    """Ошибка инициализации системы"""
+
+    def __init__(self, component: str, reason: str):
+        super().__init__(
+            f"Cannot initialize {component}: {reason}",
+            {"component": component, "reason": reason}
+        )
+        self.error_code = "INITIALIZATION_ERROR"
+
+
+class ConfigurationError(CoreError):
+    """Ошибка конфигурации"""
+
+    def __init__(self, param: str, value: Any, expected: str):
+        super().__init__(
+            f"Invalid configuration: {param}={value}, expected {expected}",
+            {"param": param, "value": value, "expected": expected}
+        )
+        self.error_code = "CONFIGURATION_ERROR"
+
+
+class PipelineError(CoreError):
+    """Ошибка в pipeline обработки"""
+
+    def __init__(self, stage: str, reason: str):
+        super().__init__(
+            f"Pipeline failed at stage '{stage}': {reason}",
+            {"stage": stage, "reason": reason}
+        )
+        self.error_code = "PIPELINE_ERROR"
+
+
+# ============================================
+# ОШИБКИ ВАЛИДАЦИИ (Validation)
+# ============================================
+
+class ValidationError(ConsciousAIError):
+    """Базовая ошибка валидации"""
+
+    def __init__(self, message: str, details: Optional[Dict] = None):
+        super().__init__(message, "VALIDATION_ERROR", details)
+
+
+class InvalidInputError(ValidationError):
+    """Невалидные входные данные"""
+
+    def __init__(self, field: str, value: Any, reason: str):
+        super().__init__(
+            f"Invalid input for '{field}': {reason}",
+            {"field": field, "value": str(value)[:100], "reason": reason}
+        )
+        self.error_code = "INVALID_INPUT"
+
+
+class MissingRequiredFieldError(ValidationError):
+    """Отсутствует обязательное поле"""
+
+    def __init__(self, field: str):
+        super().__init__(
+            f"Missing required field: {field}",
+            {"field": field}
+        )
+        self.error_code = "MISSING_REQUIRED_FIELD"
+
+
+# ============================================
+# УТИЛИТЫ ДЛЯ ОБРАБОТКИ ОШИБОК
+# ============================================
+
+def handle_error(func):
+    """
+    Декоратор для автоматической обработки ошибок
+
+    Использование:
+        @handle_error
+        def risky_function():
+            ...
+    """
+    from functools import wraps
+    from .logger import get_logger
+
+    logger = get_logger(func.__module__)
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ConsciousAIError as e:
+            logger.error(f"ConsciousAI Error in {func.__name__}: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error in {func.__name__}: {e}", exc_info=True)
+            raise CoreError(
+                f"Unexpected error in {func.__name__}: {str(e)}",
+                details={"original_error": type(e).__name__}
+            ) from e
+
+    return wrapper
+
+
+def handle_error_async(func):
+    """Асинхронная версия декоратора обработки ошибок"""
+    from functools import wraps
+    from .logger import get_logger
+
+    logger = get_logger(func.__module__)
+
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except ConsciousAIError as e:
+            logger.error(f"ConsciousAI Error in {func.__name__}: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error in {func.__name__}: {e}", exc_info=True)
+            raise CoreError(
+                f"Unexpected error in {func.__name__}: {str(e)}",
+                details={"original_error": type(e).__name__}
+            ) from e
+
+    return wrapper
+
+
+def safe_execute(func, *args, default=None, **kwargs):
+    """
+    Безопасное выполнение функции с fallback
+
+    Args:
+        func: Функция для выполнения
+        *args: Аргументы
+        default: Значение по умолчанию при ошибке
+        **kwargs: Именованные аргументы
+
+    Returns:
+        Результат функции или default
+    """
+    from .logger import get_logger
+    logger = get_logger('safe_execute')
+
+    try:
+        return func(*args, **kwargs)
+    except Exception as e:
+        logger.warning(f"Safe execute caught error: {e}")
+        return default
+
+
+# Пример использования
+if __name__ == "__main__":
+    print("🔧 Тест системы исключений:\n")
+
+    # Тест базового исключения
+    try:
+        raise ConsciousAIError("Тестовая ошибка", "TEST_001", {"key": "value"})
+    except ConsciousAIError as e:
+        print(f"✅ Базовое исключение: {e}")
+        print(f"   Dict: {e.to_dict()}\n")
+
+    # Тест ошибки памяти
+    try:
+        raise MemoryNotFoundError("kernel-123")
+    except MemoryError as e:
+        print(f"✅ Ошибка памяти: {e}\n")
+
+    # Тест ошибки инсайта
+    try:
+        raise InsightGenerationError("AI память", "недостаточно данных")
+    except InsightError as e:
+        print(f"✅ Ошибка инсайта: {e}\n")
+
+    # Тест декоратора
+    @handle_error
+    def failing_function():
+        raise ValueError("Внутренняя ошибка")
+
+    try:
+        failing_function()
+    except CoreError as e:
+        print(f"✅ Декоратор поймал: {e}\n")
+
+    # Тест safe_execute
+    def divide(a, b):
+        return a / b
+
+    result = safe_execute(divide, 10, 0, default=-1)
+    print(f"✅ Safe execute: 10/0 = {result} (fallback)\n")
+
+    print("✅ Система исключений работает!")
+
+
+======================================
+ФАЙЛ: conscious_ai/memory/base.py
+======================================
+"""
+ConsciousAI - Базовые абстракции для памяти
+Интерфейсы для различных хранилищ
+
+Рекомендация GPT-5: Создать базовый интерфейс MemoryStore
+"""
+
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field, asdict
+from typing import List, Dict, Any, Optional, Tuple
+from datetime import datetime
+from enum import Enum
+import uuid
+
+
+class KernelType(Enum):
+    """Типы смысловых зёрен"""
+    FACT = "fact"
+    INSIGHT = "insight"
+    DECISION = "decision"
+    PATTERN = "pattern"
+    GOAL = "goal"
+    RELATIONSHIP = "relationship"
+    PREFERENCE = "preference"
+    CONTEXT = "context"
+    EMOTION = "emotion"
+    REFLECTION = "reflection"
+
+
+@dataclass
+class SemanticKernel:
+    """
+    Универсальная структура смыслового зерна
+
+    Рекомендация GPT-5: Использовать pydantic
+    TODO: Перевести на pydantic в следующей итерации
+    """
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    essence: str = ""
+    concepts: List[str] = field(default_factory=list)
+    kernel_type: KernelType = KernelType.FACT
+    importance: float = 0.5
+    connections: List[str] = field(default_factory=list)
+    timestamp: datetime = field(default_factory=datetime.now)
+    activation_count: int = 0
+    last_accessed: Optional[datetime] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    # Новые поля по рекомендации GPT-5
+    ttl: Optional[int] = None  # Time-to-live в секундах
+    priority: int = 0  # Приоритет (0-10)
+    tags: List[str] = field(default_factory=list)  # Теги для быстрого поиска
+    source: str = "user"  # Источник информации
+
+    def activate(self):
+        """Активировать зерно (увеличить счётчик)"""
+        self.activation_count += 1
+        self.last_accessed = datetime.now()
+
+    def is_expired(self) -> bool:
+        """Проверить истёк ли TTL"""
+        if self.ttl is None:
+            return False
+        elapsed = (datetime.now() - self.timestamp).total_seconds()
+        return elapsed > self.ttl
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Сериализация"""
+        data = asdict(self)
+        data['kernel_type'] = self.kernel_type.value
+        data['timestamp'] = self.timestamp.isoformat()
+        if self.last_accessed:
+            data['last_accessed'] = self.last_accessed.isoformat()
+        return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'SemanticKernel':
+        """Десериализация"""
+        data = data.copy()
+        data['kernel_type'] = KernelType(data['kernel_type'])
+        data['timestamp'] = datetime.fromisoformat(data['timestamp'])
+        if data.get('last_accessed'):
+            data['last_accessed'] = datetime.fromisoformat(data['last_accessed'])
+        return cls(**data)
+
+
+@dataclass
+class SearchQuery:
+    """
+    Структура поискового запроса
+
+    Рекомендация GPT-5: Добавить фильтрацию и scoring
+    """
+    text: str = ""
+    concepts: List[str] = field(default_factory=list)
+    kernel_types: Optional[List[KernelType]] = None
+    min_importance: float = 0.0
+    max_importance: float = 1.0
+    min_priority: int = 0
+    tags: Optional[List[str]] = None
+    source: Optional[str] = None
+    limit: int = 10
+    offset: int = 0
+    include_expired: bool = False
+    sort_by: str = "relevance"  # relevance, importance, timestamp, activation
+    sort_order: str = "desc"
+
+
+@dataclass
+class SearchResult:
+    """Результат поиска"""
+    kernel: SemanticKernel
+    score: float  # Релевантность 0-1
+    match_reason: str = ""
+
+
+class BaseMemoryStore(ABC):
+    """
+    Абстрактный базовый класс для хранилища памяти
+
+    Рекомендация GPT-5: Все реализации должны наследовать этот интерфейс
+
+    Методы:
+        save() - сохранить зерно
+        get() - получить по ID
+        search() - поиск по запросу
+        delete() - удалить
+        update() - обновить
+        stats() - статистика
+    """
+
+    @abstractmethod
+    def save(self, kernel: SemanticKernel) -> str:
+        """
+        Сохранить семантическое зерно
+
+        Args:
+            kernel: Зерно для сохранения
+
+        Returns:
+            ID сохранённого зерна
+
+        Raises:
+            MemoryStorageError: При ошибке сохранения
+        """
+        pass
+
+    @abstractmethod
+    def get(self, kernel_id: str, activate: bool = True) -> Optional[SemanticKernel]:
+        """
+        Получить зерно по ID
+
+        Args:
+            kernel_id: ID зерна
+            activate: Увеличить счётчик активаций
+
+        Returns:
+            SemanticKernel или None
+
+        Raises:
+            MemoryRetrievalError: При ошибке чтения
+        """
+        pass
+
+    @abstractmethod
+    def search(self, query: SearchQuery) -> List[SearchResult]:
+        """
+        Поиск зёрен по запросу
+
+        Args:
+            query: Структура поискового запроса
+
+        Returns:
+            Список SearchResult отсортированный по score
+
+        Raises:
+            MemoryRetrievalError: При ошибке поиска
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, kernel_id: str) -> bool:
+        """
+        Удалить зерно
+
+        Args:
+            kernel_id: ID зерна
+
+        Returns:
+            True если удалено, False если не найдено
+        """
+        pass
+
+    @abstractmethod
+    def update(self, kernel: SemanticKernel) -> bool:
+        """
+        Обновить существующее зерно
+
+        Args:
+            kernel: Зерно с обновлёнными данными
+
+        Returns:
+            True если обновлено, False если не найдено
+        """
+        pass
+
+    @abstractmethod
+    def stats(self) -> Dict[str, Any]:
+        """
+        Получить статистику хранилища
+
+        Returns:
+            Словарь со статистикой:
+            - total_kernels: int
+            - by_type: Dict[str, int]
+            - avg_importance: float
+            - total_connections: int
+            - storage_size_bytes: int
+        """
+        pass
+
+    @abstractmethod
+    def cleanup(self, days_old: int = 30, importance_threshold: float = 0.2) -> int:
+        """
+        Очистить старые неважные зёрна
+
+        Args:
+            days_old: Удалить старше N дней
+            importance_threshold: Удалить с важностью ниже порога
+
+        Returns:
+            Количество удалённых зёрен
+        """
+        pass
+
+    def save_batch(self, kernels: List[SemanticKernel]) -> List[str]:
+        """
+        Сохранить несколько зёрен (batch операция)
+
+        Args:
+            kernels: Список зёрен
+
+        Returns:
+            Список ID сохранённых зёрен
+
+        По умолчанию - последовательное сохранение.
+        Переопределить для оптимизации.
+        """
+        return [self.save(k) for k in kernels]
+
+    def get_batch(self, kernel_ids: List[str]) -> List[SemanticKernel]:
+        """
+        Получить несколько зёрен (batch операция)
+
+        Args:
+            kernel_ids: Список ID
+
+        Returns:
+            Список найденных зёрен
+        """
+        results = []
+        for kid in kernel_ids:
+            kernel = self.get(kid, activate=False)
+            if kernel:
+                results.append(kernel)
+        return results
+
+    def connect(self, kernel_id1: str, kernel_id2: str, strength: float = 1.0) -> bool:
+        """
+        Создать связь между зёрнами
+
+        Args:
+            kernel_id1: ID первого зерна
+            kernel_id2: ID второго зерна
+            strength: Сила связи (0-1)
+
+        Returns:
+            True если связь создана
+        """
+        kernel1 = self.get(kernel_id1, activate=False)
+        kernel2 = self.get(kernel_id2, activate=False)
+
+        if not kernel1 or not kernel2:
+            return False
+
+        # Добавить связи (двунаправленно)
+        if kernel_id2 not in kernel1.connections:
+            kernel1.connections.append(kernel_id2)
+            self.update(kernel1)
+
+        if kernel_id1 not in kernel2.connections:
+            kernel2.connections.append(kernel_id1)
+            self.update(kernel2)
+
+        return True
+
+    def get_connected(self, kernel_id: str) -> List[SemanticKernel]:
+        """
+        Получить все связанные зёрна
+
+        Args:
+            kernel_id: ID зерна
+
+        Returns:
+            Список связанных зёрен
+        """
+        kernel = self.get(kernel_id, activate=False)
+        if not kernel:
+            return []
+
+        return self.get_batch(kernel.connections)
+
+
+class InMemoryStore(BaseMemoryStore):
+    """
+    In-memory реализация для тестирования
+
+    Быстрая, но не персистентная
+    """
+
+    def __init__(self):
+        self._storage: Dict[str, SemanticKernel] = {}
+
+    def save(self, kernel: SemanticKernel) -> str:
+        self._storage[kernel.id] = kernel
+        return kernel.id
+
+    def get(self, kernel_id: str, activate: bool = True) -> Optional[SemanticKernel]:
+        kernel = self._storage.get(kernel_id)
+        if kernel and activate:
+            kernel.activate()
+        return kernel
+
+    def search(self, query: SearchQuery) -> List[SearchResult]:
+        results = []
+
+        for kernel in self._storage.values():
+            # Пропустить истёкшие
+            if not query.include_expired and kernel.is_expired():
+                continue
+
+            # Фильтры
+            if kernel.importance < query.min_importance:
+                continue
+            if kernel.importance > query.max_importance:
+                continue
+            if kernel.priority < query.min_priority:
+                continue
+            if query.kernel_types and kernel.kernel_type not in query.kernel_types:
+                continue
+            if query.tags and not set(query.tags).intersection(set(kernel.tags)):
+                continue
+            if query.source and kernel.source != query.source:
+                continue
+
+            # Вычислить score
+            score = self._calculate_score(query, kernel)
+            if score > 0:
+                results.append(SearchResult(
+                    kernel=kernel,
+                    score=score,
+                    match_reason=f"Score: {score:.2f}"
+                ))
+
+        # Сортировка
+        if query.sort_by == "relevance":
+            results.sort(key=lambda r: r.score, reverse=query.sort_order == "desc")
+        elif query.sort_by == "importance":
+            results.sort(key=lambda r: r.kernel.importance, reverse=query.sort_order == "desc")
+        elif query.sort_by == "timestamp":
+            results.sort(key=lambda r: r.kernel.timestamp, reverse=query.sort_order == "desc")
+        elif query.sort_by == "activation":
+            results.sort(key=lambda r: r.kernel.activation_count, reverse=query.sort_order == "desc")
+
+        # Пагинация
+        return results[query.offset:query.offset + query.limit]
+
+    def _calculate_score(self, query: SearchQuery, kernel: SemanticKernel) -> float:
+        """Вычислить релевантность"""
+        score = 0.0
+
+        # Совпадение текста
+        if query.text:
+            text_lower = query.text.lower()
+            if text_lower in kernel.essence.lower():
+                score += 0.5
+            # Слова из запроса в концепциях
+            query_words = set(text_lower.split())
+            kernel_concepts = set(c.lower() for c in kernel.concepts)
+            overlap = len(query_words.intersection(kernel_concepts))
+            if query_words:
+                score += (overlap / len(query_words)) * 0.3
+
+        # Совпадение концепций
+        if query.concepts:
+            query_concepts = set(c.lower() for c in query.concepts)
+            kernel_concepts = set(c.lower() for c in kernel.concepts)
+            overlap = len(query_concepts.intersection(kernel_concepts))
+            if query_concepts:
+                score += (overlap / len(query_concepts)) * 0.2
+
+        # Бонус за важность
+        score += kernel.importance * 0.1
+
+        return min(score, 1.0)
+
+    def delete(self, kernel_id: str) -> bool:
+        if kernel_id in self._storage:
+            del self._storage[kernel_id]
+            return True
+        return False
+
+    def update(self, kernel: SemanticKernel) -> bool:
+        if kernel.id in self._storage:
+            self._storage[kernel.id] = kernel
+            return True
+        return False
+
+    def stats(self) -> Dict[str, Any]:
+        total = len(self._storage)
+        by_type = {}
+        total_importance = 0.0
+        total_connections = 0
+
+        for kernel in self._storage.values():
+            type_name = kernel.kernel_type.value
+            by_type[type_name] = by_type.get(type_name, 0) + 1
+            total_importance += kernel.importance
+            total_connections += len(kernel.connections)
+
+        return {
+            "total_kernels": total,
+            "by_type": by_type,
+            "avg_importance": total_importance / total if total > 0 else 0,
+            "total_connections": total_connections // 2,  # Двунаправленные
+            "storage_size_bytes": 0  # In-memory
+        }
+
+    def cleanup(self, days_old: int = 30, importance_threshold: float = 0.2) -> int:
+        from datetime import timedelta
+        cutoff = datetime.now() - timedelta(days=days_old)
+        to_delete = []
+
+        for kid, kernel in self._storage.items():
+            if kernel.importance < importance_threshold and kernel.timestamp < cutoff:
+                to_delete.append(kid)
+
+        for kid in to_delete:
+            del self._storage[kid]
+
+        return len(to_delete)
+
+
+# Пример использования
+if __name__ == "__main__":
+    print("🧠 Тест базовых абстракций памяти:\n")
+
+    # Создать in-memory хранилище
+    store = InMemoryStore()
+
+    # Создать и сохранить зёрна
+    kernel1 = SemanticKernel(
+        essence="AI с мета-сознанием",
+        concepts=["ai", "мета", "сознание"],
+        kernel_type=KernelType.GOAL,
+        importance=0.9,
+        priority=10,
+        tags=["core", "vision"]
+    )
+
+    kernel2 = SemanticKernel(
+        essence="Смысловая память сжимает контекст",
+        concepts=["память", "сжатие", "контекст"],
+        kernel_type=KernelType.FACT,
+        importance=0.7,
+        tags=["memory"]
+    )
+
+    # Сохранить
+    id1 = store.save(kernel1)
+    id2 = store.save(kernel2)
+    print(f"✅ Сохранено 2 зерна")
+
+    # Поиск
+    query = SearchQuery(
+        text="мета-сознание",
+        min_importance=0.5,
+        limit=5
+    )
+
+    results = store.search(query)
+    print(f"\n🔍 Поиск 'мета-сознание':")
+    for res in results:
+        print(f"  Score: {res.score:.2f} | {res.kernel.essence}")
+
+    # Связать
+    store.connect(id1, id2)
+    print(f"\n🔗 Создана связь между зёрнами")
+
+    # Статистика
+    stats = store.stats()
+    print(f"\n📊 Статистика:")
+    print(f"  Всего зёрен: {stats['total_kernels']}")
+    print(f"  По типам: {stats['by_type']}")
+    print(f"  Связей: {stats['total_connections']}")
+
+    print("\n✅ Базовые абстракции работают!")
+
+
+======================================
+ФАЙЛ: conscious_ai/memory/sqlite_store.py
+======================================
+"""
+ConsciousAI - SQLite реализация MemoryStore
+Персистентное хранилище с SQL
+
+Рекомендация GPT-5: Использовать абстракции для хранилища
+"""
+
+import sqlite3
+import json
+from typing import List, Dict, Any, Optional
+from datetime import datetime, timedelta
+from pathlib import Path
+
+from .base import (
+    BaseMemoryStore,
+    SemanticKernel,
+    SearchQuery,
+    SearchResult,
+    KernelType,
+)
+from ..utils import get_logger, MemoryStorageError, MemoryRetrievalError, handle_error
+
+logger = get_logger(__name__)
+
+
+class SQLiteMemoryStore(BaseMemoryStore):
+    """
+    SQLite реализация хранилища памяти
+
+    Особенности:
+    - Персистентность (данные сохраняются на диск)
+    - Транзакции
+    - Индексы для быстрого поиска
+    - Connection pooling (в перспективе)
+    """
+
+    def __init__(self, db_path: str = "semantic_memory.db"):
+        self.db_path = db_path
+        logger.info(f"Инициализация SQLite store: {db_path}")
+        self._init_database()
+
+    def _init_database(self):
+        """Создать таблицы и индексы"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+
+            # Таблица зёрен
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS kernels (
+                    id TEXT PRIMARY KEY,
+                    essence TEXT NOT NULL,
+                    concepts TEXT NOT NULL,
+                    kernel_type TEXT NOT NULL,
+                    importance REAL NOT NULL,
+                    priority INTEGER DEFAULT 0,
+                    timestamp TEXT NOT NULL,
+                    activation_count INTEGER DEFAULT 0,
+                    last_accessed TEXT,
+                    ttl INTEGER,
+                    tags TEXT,
+                    source TEXT DEFAULT 'user',
+                    metadata TEXT
+                )
+            ''')
+
+            # Таблица связей
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS connections (
+                    kernel_id TEXT NOT NULL,
+                    connected_id TEXT NOT NULL,
+                    strength REAL DEFAULT 1.0,
+                    created_at TEXT NOT NULL,
+                    PRIMARY KEY (kernel_id, connected_id),
+                    FOREIGN KEY (kernel_id) REFERENCES kernels(id) ON DELETE CASCADE,
+                    FOREIGN KEY (connected_id) REFERENCES kernels(id) ON DELETE CASCADE
+                )
+            ''')
+
+            # Индексы для быстрого поиска
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_importance ON kernels(importance DESC)')
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_timestamp ON kernels(timestamp DESC)')
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_type ON kernels(kernel_type)')
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_priority ON kernels(priority DESC)')
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_source ON kernels(source)')
+
+            conn.commit()
+            conn.close()
+            logger.info("База данных инициализирована")
+
+        except Exception as e:
+            logger.error(f"Ошибка инициализации БД: {e}")
+            raise MemoryStorageError(f"Cannot initialize database: {e}")
+
+    def _get_connection(self) -> sqlite3.Connection:
+        """Получить соединение с БД"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            conn.execute("PRAGMA foreign_keys = ON")
+            return conn
+        except Exception as e:
+            raise MemoryStorageError(f"Cannot connect to database: {e}")
+
+    @handle_error
+    def save(self, kernel: SemanticKernel) -> str:
+        """Сохранить зерно в SQLite"""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute('''
+                INSERT OR REPLACE INTO kernels
+                (id, essence, concepts, kernel_type, importance, priority,
+                 timestamp, activation_count, last_accessed, ttl, tags, source, metadata)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                kernel.id,
+                kernel.essence,
+                json.dumps(kernel.concepts),
+                kernel.kernel_type.value,
+                kernel.importance,
+                kernel.priority,
+                kernel.timestamp.isoformat(),
+                kernel.activation_count,
+                kernel.last_accessed.isoformat() if kernel.last_accessed else None,
+                kernel.ttl,
+                json.dumps(kernel.tags),
+                kernel.source,
+                json.dumps(kernel.metadata)
+            ))
+
+            # Сохранить связи
+            for connected_id in kernel.connections:
+                cursor.execute('''
+                    INSERT OR IGNORE INTO connections (kernel_id, connected_id, created_at)
+                    VALUES (?, ?, ?)
+                ''', (kernel.id, connected_id, datetime.now().isoformat()))
+
+            conn.commit()
+            logger.debug(f"Сохранено зерно: {kernel.id[:8]}...")
+            return kernel.id
+
+        finally:
+            conn.close()
+
+    @handle_error
+    def get(self, kernel_id: str, activate: bool = True) -> Optional[SemanticKernel]:
+        """Получить зерно по ID"""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute('SELECT * FROM kernels WHERE id = ?', (kernel_id,))
+            row = cursor.fetchone()
+
+            if not row:
+                return None
+
+            # Получить связи
+            cursor.execute(
+                'SELECT connected_id FROM connections WHERE kernel_id = ?',
+                (kernel_id,)
+            )
+            connections = [r[0] for r in cursor.fetchall()]
+
+            kernel = self._row_to_kernel(row, connections)
+
+            # Активировать
+            if activate:
+                kernel.activate()
+                cursor.execute('''
+                    UPDATE kernels
+                    SET activation_count = ?, last_accessed = ?
+                    WHERE id = ?
+                ''', (kernel.activation_count, kernel.last_accessed.isoformat(), kernel.id))
+                conn.commit()
+
+            return kernel
+
+        finally:
+            conn.close()
+
+    @handle_error
+    def search(self, query: SearchQuery) -> List[SearchResult]:
+        """Поиск зёрен по запросу"""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        try:
+            # Построить SQL запрос
+            sql = 'SELECT * FROM kernels WHERE 1=1'
+            params = []
+
+            # Фильтр по важности
+            sql += ' AND importance >= ? AND importance <= ?'
+            params.extend([query.min_importance, query.max_importance])
+
+            # Фильтр по приоритету
+            sql += ' AND priority >= ?'
+            params.append(query.min_priority)
+
+            # Фильтр по типу
+            if query.kernel_types:
+                placeholders = ','.join('?' * len(query.kernel_types))
+                sql += f' AND kernel_type IN ({placeholders})'
+                params.extend([kt.value for kt in query.kernel_types])
+
+            # Фильтр по источнику
+            if query.source:
+                sql += ' AND source = ?'
+                params.append(query.source)
+
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+
+            # Обработать результаты
+            results = []
+            for row in rows:
+                # Получить связи
+                cursor.execute(
+                    'SELECT connected_id FROM connections WHERE kernel_id = ?',
+                    (row[0],)
+                )
+                connections = [r[0] for r in cursor.fetchall()]
+                kernel = self._row_to_kernel(row, connections)
+
+                # Пропустить истёкшие
+                if not query.include_expired and kernel.is_expired():
+                    continue
+
+                # Фильтр по тегам
+                if query.tags:
+                    if not set(query.tags).intersection(set(kernel.tags)):
+                        continue
+
+                # Вычислить релевантность
+                score = self._calculate_score(query, kernel)
+
+                if score > 0 or not query.text:  # Если нет текста, все релевантны
+                    results.append(SearchResult(
+                        kernel=kernel,
+                        score=score,
+                        match_reason=f"Relevance: {score:.2f}"
+                    ))
+
+            # Сортировка
+            if query.sort_by == "relevance":
+                results.sort(key=lambda r: r.score, reverse=query.sort_order == "desc")
+            elif query.sort_by == "importance":
+                results.sort(key=lambda r: r.kernel.importance, reverse=query.sort_order == "desc")
+            elif query.sort_by == "timestamp":
+                results.sort(key=lambda r: r.kernel.timestamp, reverse=query.sort_order == "desc")
+            elif query.sort_by == "activation":
+                results.sort(key=lambda r: r.kernel.activation_count, reverse=query.sort_order == "desc")
+
+            # Пагинация
+            return results[query.offset:query.offset + query.limit]
+
+        finally:
+            conn.close()
+
+    def _calculate_score(self, query: SearchQuery, kernel: SemanticKernel) -> float:
+        """Вычислить релевантность зерна к запросу"""
+        score = 0.0
+
+        # Совпадение текста в essence
+        if query.text:
+            text_lower = query.text.lower()
+            essence_lower = kernel.essence.lower()
+
+            # Точное совпадение
+            if text_lower in essence_lower:
+                score += 0.5
+
+            # Слова из запроса
+            query_words = set(text_lower.split())
+            essence_words = set(essence_lower.split())
+            word_overlap = len(query_words.intersection(essence_words))
+            if query_words:
+                score += (word_overlap / len(query_words)) * 0.2
+
+            # Слова в концепциях
+            kernel_concepts = set(c.lower() for c in kernel.concepts)
+            concept_overlap = len(query_words.intersection(kernel_concepts))
+            if query_words:
+                score += (concept_overlap / len(query_words)) * 0.2
+
+        # Совпадение концепций из запроса
+        if query.concepts:
+            query_concepts = set(c.lower() for c in query.concepts)
+            kernel_concepts = set(c.lower() for c in kernel.concepts)
+            overlap = len(query_concepts.intersection(kernel_concepts))
+            if query_concepts:
+                score += (overlap / len(query_concepts)) * 0.3
+
+        # Бонус за важность
+        score += kernel.importance * 0.1
+
+        return min(score, 1.0)
+
+    @handle_error
+    def delete(self, kernel_id: str) -> bool:
+        """Удалить зерно"""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute('DELETE FROM kernels WHERE id = ?', (kernel_id,))
+            deleted = cursor.rowcount > 0
+            conn.commit()
+
+            if deleted:
+                logger.debug(f"Удалено зерно: {kernel_id[:8]}...")
+
+            return deleted
+
+        finally:
+            conn.close()
+
+    @handle_error
+    def update(self, kernel: SemanticKernel) -> bool:
+        """Обновить зерно"""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute('''
+                UPDATE kernels SET
+                    essence = ?,
+                    concepts = ?,
+                    kernel_type = ?,
+                    importance = ?,
+                    priority = ?,
+                    activation_count = ?,
+                    last_accessed = ?,
+                    ttl = ?,
+                    tags = ?,
+                    source = ?,
+                    metadata = ?
+                WHERE id = ?
+            ''', (
+                kernel.essence,
+                json.dumps(kernel.concepts),
+                kernel.kernel_type.value,
+                kernel.importance,
+                kernel.priority,
+                kernel.activation_count,
+                kernel.last_accessed.isoformat() if kernel.last_accessed else None,
+                kernel.ttl,
+                json.dumps(kernel.tags),
+                kernel.source,
+                json.dumps(kernel.metadata),
+                kernel.id
+            ))
+
+            updated = cursor.rowcount > 0
+            conn.commit()
+            return updated
+
+        finally:
+            conn.close()
+
+    @handle_error
+    def stats(self) -> Dict[str, Any]:
+        """Получить статистику хранилища"""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        try:
+            # Всего зёрен
+            cursor.execute('SELECT COUNT(*) FROM kernels')
+            total_kernels = cursor.fetchone()[0]
+
+            # По типам
+            cursor.execute('SELECT kernel_type, COUNT(*) FROM kernels GROUP BY kernel_type')
+            by_type = dict(cursor.fetchall())
+
+            # Средняя важность
+            cursor.execute('SELECT AVG(importance) FROM kernels')
+            avg_importance = cursor.fetchone()[0] or 0
+
+            # Всего связей
+            cursor.execute('SELECT COUNT(*) FROM connections')
+            total_connections = cursor.fetchone()[0]
+
+            # Размер файла
+            file_size = Path(self.db_path).stat().st_size if Path(self.db_path).exists() else 0
+
+            return {
+                "total_kernels": total_kernels,
+                "by_type": by_type,
+                "avg_importance": avg_importance,
+                "total_connections": total_connections // 2,
+                "storage_size_bytes": file_size
+            }
+
+        finally:
+            conn.close()
+
+    @handle_error
+    def cleanup(self, days_old: int = 30, importance_threshold: float = 0.2) -> int:
+        """Очистить старые неважные зёрна"""
+        cutoff_date = datetime.now() - timedelta(days=days_old)
+
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute('''
+                DELETE FROM kernels
+                WHERE importance < ? AND timestamp < ?
+            ''', (importance_threshold, cutoff_date.isoformat()))
+
+            deleted_count = cursor.rowcount
+            conn.commit()
+
+            logger.info(f"Очищено {deleted_count} старых зёрен")
+            return deleted_count
+
+        finally:
+            conn.close()
+
+    def _row_to_kernel(self, row: tuple, connections: List[str] = None) -> SemanticKernel:
+        """Преобразовать строку БД в SemanticKernel"""
+        if connections is None:
+            connections = []
+
+        return SemanticKernel(
+            id=row[0],
+            essence=row[1],
+            concepts=json.loads(row[2]),
+            kernel_type=KernelType(row[3]),
+            importance=row[4],
+            priority=row[5],
+            timestamp=datetime.fromisoformat(row[6]),
+            activation_count=row[7],
+            last_accessed=datetime.fromisoformat(row[8]) if row[8] else None,
+            ttl=row[9],
+            tags=json.loads(row[10]) if row[10] else [],
+            source=row[11],
+            metadata=json.loads(row[12]) if row[12] else {},
+            connections=connections
+        )
+
+
+# Пример использования
+if __name__ == "__main__":
+    print("🗄️  Тест SQLite MemoryStore:\n")
+
+    store = SQLiteMemoryStore(db_path="test_sqlite_store.db")
+
+    # Сохранить зерно
+    kernel = SemanticKernel(
+        essence="SQLite хранилище работает!",
+        concepts=["sqlite", "хранилище", "тест"],
+        kernel_type=KernelType.FACT,
+        importance=0.8,
+        priority=5,
+        tags=["test", "sqlite"]
+    )
+
+    kid = store.save(kernel)
+    print(f"✅ Сохранено: {kid[:8]}...")
+
+    # Получить
+    retrieved = store.get(kid)
+    print(f"✅ Получено: {retrieved.essence}")
+
+    # Статистика
+    stats = store.stats()
+    print(f"\n📊 Статистика:")
+    print(f"  Зёрен: {stats['total_kernels']}")
+    print(f"  Размер БД: {stats['storage_size_bytes']} байт")
+
+    print("\n✅ SQLite MemoryStore работает!")
+
+
