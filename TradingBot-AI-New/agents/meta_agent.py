@@ -234,6 +234,24 @@ async def synthesize_decision(
         final_direction = "HOLD"
         final_confidence = 0.5
 
+    # 5. Создаём краткое голосовое резюме (без markdown)
+    if language == 'ru':
+        voice_summary = f"Анализ {symbol}. Сигнал: {final_direction}. Уверенность: {int(final_confidence * 100)} процентов. "
+        if final_direction == "BUY":
+            voice_summary += "Рекомендую покупку."
+        elif final_direction == "SELL":
+            voice_summary += "Рекомендую продажу."
+        else:
+            voice_summary += "Рекомендую удержание позиции."
+    else:
+        voice_summary = f"Analysis for {symbol}. Signal: {final_direction}. Confidence: {int(final_confidence * 100)} percent. "
+        if final_direction == "BUY":
+            voice_summary += "Recommended action: buy."
+        elif final_direction == "SELL":
+            voice_summary += "Recommended action: sell."
+        else:
+            voice_summary += "Recommended action: hold."
+
     result = {
         "symbol": symbol,
         "direction": final_direction,
@@ -241,6 +259,7 @@ async def synthesize_decision(
         "weighted_score": weighted_score,
         "resonance": resonance,
         "ai_analysis": ai_analysis,
+        "voice_summary": voice_summary,  # Короткая версия для озвучивания
         "agent_results": agent_results
     }
 

@@ -205,12 +205,13 @@ async def analyze_asset(symbol: str, update: Update, context: ContextTypes.DEFAU
         await status_msg.edit_text(f"✍️ Создаю отчёт...")
 
         response_text = final_decision.get("ai_analysis", "")
+        voice_text = final_decision.get("voice_summary", response_text[:200])  # Короткая версия
 
         # 5. Создаём голосовое сообщение
         await status_msg.edit_text(f"🗣️ Создаю голосовой ответ...")
 
         audio_path = f"analysis_{user_id}_{int(datetime.now().timestamp())}.mp3"
-        audio_success = await text_to_speech(response_text, audio_path)
+        audio_success = await text_to_speech(voice_text, audio_path)
 
         # 6. Удаляем статусное сообщение
         try:
@@ -222,18 +223,24 @@ async def analyze_asset(symbol: str, update: Update, context: ContextTypes.DEFAU
         if audio_success and os.path.exists(audio_path):
             try:
                 with open(audio_path, 'rb') as audio:
-                    await update.effective_message.reply_audio(
-                        audio=audio,
-                        title=f"{symbol} Analysis",
-                        performer="Trading Bot AI",
-                        caption=f"🗣️ **Голосовой анализ {symbol}**",
-                        parse_mode="Markdown"
+                    await update.effective_message.reply_voice(
+                        voice=audio,
+                        caption=f"🗣️ Голосовое резюме / Voice summary"
                     )
+                logger.info(f"✅ Голосовой ответ отправлен")
 
                 # Удаляем аудио
                 os.remove(audio_path)
             except Exception as e:
                 logger.error(f"❌ Ошибка отправки аудио: {e}")
+                # Пробуем удалить файл даже если отправка не удалась
+                try:
+                    if os.path.exists(audio_path):
+                        os.remove(audio_path)
+                except:
+                    pass
+        else:
+            logger.warning(f"⚠️ Голосовой файл не создан")
 
         # 8. Отправляем текстовую версию
         await update.effective_message.reply_text(
