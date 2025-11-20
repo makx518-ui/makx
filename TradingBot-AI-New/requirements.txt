@@ -1,0 +1,15 @@
+# ========== TELEGRAM BOT ==========
+python-telegram-bot==21.5
+
+# ========== AI & VOICE ==========
+httpx==0.27.0
+edge-tts==6.1.12
+python-dotenv==1.0.1
+
+# ========== DATA & ANALYSIS ==========
+pandas==2.2.2
+numpy==1.26.4
+
+# ========== ASYNC & UTILS ==========
+asyncio
+aiofiles==24.1.0
